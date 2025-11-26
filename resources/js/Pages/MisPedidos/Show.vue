@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Link } from "@inertiajs/vue3";
+import QRPayment from "@/Components/QRPayment.vue";
 
 const props = defineProps({
     pedido: Object,
@@ -261,6 +262,70 @@ const totalProductos = computed(() => {
                                         </tr>
                                     </tfoot>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Código QR para Pago (si está pendiente) -->
+                <div 
+                    v-if="pedido.estado === 'pendiente' && pedido.pago_facil_qr_image" 
+                    class="col-md-4"
+                >
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="bi bi-qr-code me-2"></i>
+                                Pagar Pedido
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <QRPayment
+                                :qr-image="pedido.pago_facil_qr_image"
+                                :transaction-id="pedido.pago_facil_transaction_id"
+                                :monto="pedido.total"
+                                :descripcion="`Pedido #${pedido.numero_venta}`"
+                                :status="pedido.pago_facil_status || 'pending'"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado del Pedido (si ya está pagado o enviado) -->
+                <div 
+                    v-else-if="pedido.estado === 'pagado' || pedido.estado === 'enviado'" 
+                    class="col-md-4"
+                >
+                    <div class="card">
+                        <div class="card-header" :class="pedido.estado === 'enviado' ? 'bg-success text-white' : 'bg-info text-white'">
+                            <h5 class="mb-0">
+                                <i class="bi" :class="pedido.estado === 'enviado' ? 'bi-truck' : 'bi-clock-history'"></i>
+                                {{ pedido.estado === 'enviado' ? 'Pedido en Camino' : 'Esperando Confirmación' }}
+                            </h5>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <i 
+                                class="bi" 
+                                :class="pedido.estado === 'enviado' ? 'bi-truck' : 'bi-check-circle-fill'"
+                                style="font-size: 4rem;"
+                                :style="{ color: pedido.estado === 'enviado' ? '#28a745' : '#17a2b8' }"
+                            ></i>
+                            <h5 class="mt-3">
+                                {{ pedido.estado === 'enviado' ? '¡Tu pedido está en camino!' : '¡Pago Confirmado!' }}
+                            </h5>
+                            <p class="text-muted">
+                                {{ pedido.estado === 'enviado' 
+                                    ? 'Pronto recibirás tu pedido en la dirección indicada.' 
+                                    : 'Tu pago ha sido confirmado. Pronto tu pedido será enviado.' 
+                                }}
+                            </p>
+                            
+                            <div v-if="pedido.direccion_entrega" class="alert alert-light text-start mt-3">
+                                <h6 class="mb-2">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    Dirección de Entrega:
+                                </h6>
+                                <p class="mb-0 small">{{ pedido.direccion_entrega }}</p>
                             </div>
                         </div>
                     </div>

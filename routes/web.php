@@ -19,6 +19,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MetodoPagoController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\PedidoOnlineController;
+use App\Http\Controllers\PagoCuotaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -183,6 +185,7 @@ Route::middleware([
         Route::get('/pedidos/{id}/editar', [\App\Http\Controllers\GestionPedidosController::class, 'edit'])->name('pedidos.edit');
         Route::put('/pedidos/{id}', [\App\Http\Controllers\GestionPedidosController::class, 'update'])->name('pedidos.update');
         Route::patch('/pedidos/{id}/accion', [\App\Http\Controllers\GestionPedidosController::class, 'accion'])->name('pedidos.accion');
+        Route::patch('/pedidos/{id}/marcar-enviado', [PedidoOnlineController::class, 'marcarComoEnviado'])->name('pedidos.marcar-enviado');
     });
 
     // Mis Créditos y Pagos - Solo Cliente
@@ -200,5 +203,26 @@ Route::middleware([
         
         // Mis Pagos - Solo Cliente
         Route::get('/mis-pagos', [\App\Http\Controllers\MisPagosController::class, 'index'])->name('mis-pagos.index');
+
+        // Pedidos Online - Cliente crea pedido desde carrito
+        Route::post('/carrito/realizar-pedido', [PedidoOnlineController::class, 'realizarPedido'])->name('carrito.realizar-pedido');
+        
+        // Pagos QR para cuotas de créditos
+        Route::post('/cuotas/{id}/generar-qr', [PagoCuotaController::class, 'generarQRCuota'])->name('cuotas.generar-qr');
+        Route::get('/pagos/{id}/estado', [PagoCuotaController::class, 'verificarEstadoPago'])->name('pagos.verificar-estado');
     });
 });
+
+// ============================================
+// WEBHOOKS DE PAGOFACIL (SIMULADOS)
+// Estas rutas NO requieren autenticación
+// ============================================
+Route::post('/webhook/pagofacil-simulado/venta', [PedidoOnlineController::class, 'webhookVentaSimulado'])->name('webhook.pagofacil.venta');
+Route::post('/webhook/pagofacil-simulado/cuota', [PagoCuotaController::class, 'webhookCuotaSimulado'])->name('webhook.pagofacil.cuota');
+
+// ============================================
+// ENDPOINTS DE PRUEBA (SOLO DESARROLLO)
+// Eliminar en producción
+// ============================================
+Route::post('/pagofacil-simulado/confirmar-pago', [PedidoOnlineController::class, 'confirmarPagoSimulado'])->name('pagofacil.confirmar-simulado');
+Route::post('/pagofacil-simulado/confirmar-pago-cuota', [PagoCuotaController::class, 'confirmarPagoSimulado'])->name('pagofacil.confirmar-cuota-simulado');

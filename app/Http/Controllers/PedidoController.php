@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVentaRequest;
@@ -25,6 +24,41 @@ class PedidoController extends Controller
     {
         $this->promocionService = $promocionService;
         $this->ventaService = $ventaService;
+    }
+
+    /**
+     * Listar pedidos con filtro por origen y estado
+     */
+    public function index(Request $request)
+    {
+        $origen = $request->input('origen', 'tienda'); // tienda u online
+        $estado = $request->input('estado', 'pendiente');
+
+        $query = Venta::with(['user', 'vendedor', 'metodoPago', 'detalles.producto'])
+            ->orderBy('created_at', 'desc');
+
+        // Filtrar por origen
+        if (in_array($origen, ['tienda', 'online'])) {
+            $query->where('origen', $origen);
+        }
+
+        // Filtrar por estado si se especifica
+        if (in_array($estado, ['pendiente', 'pagado', 'enviado', 'anulado'])) {
+            $query->where('estado', $estado);
+        }
+
+        // Si es cliente, solo mostrar sus propios pedidos
+        if ($request->user()->role_id === 3) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $pedidos = $query->paginate(20);
+
+        return Inertia::render('Pedidos/Index', [
+            'pedidos' => $pedidos,
+            'filtro_origen' => $origen,
+            'filtro_estado' => $estado,
+        ]);
     }
 
     /**

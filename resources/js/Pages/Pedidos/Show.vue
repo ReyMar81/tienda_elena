@@ -167,7 +167,7 @@
 
             <!-- Acciones -->
             <div
-                v-if="pedido.estado === 'pendiente'"
+                v-if="pedido.estado === 'pendiente' || (pedido.estado === 'pagado' && pedido.origen === 'online')"
                 class="card shadow-sm border-0 mb-4"
             >
                 <div class="card-header bg-white border-0">
@@ -180,17 +180,23 @@
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-3">
 
-                        <button @click="confirmarPedido" class="btn btn-success">
+                        <button v-if="pedido.estado === 'pendiente'" @click="confirmarPedido" class="btn btn-success">
                             <i class="bi bi-check-circle me-1"></i>
                             Confirmar Pedido
                         </button>
 
-                        <button @click="cancelarPedido" class="btn btn-danger">
+                        <button v-if="pedido.estado === 'pagado' && pedido.origen === 'online'" @click="marcarEnviado" class="btn btn-primary">
+                            <i class="bi bi-truck me-1"></i>
+                            Marcar como Enviado
+                        </button>
+
+                        <button v-if="pedido.estado === 'pendiente'" @click="cancelarPedido" class="btn btn-danger">
                             <i class="bi bi-x-circle me-1"></i>
                             Cancelar Pedido
                         </button>
 
                         <Link
+                            v-if="pedido.estado === 'pendiente'"
                             :href="route('pedidos.edit', pedido.id)"
                             class="btn btn-warning"
                         >
@@ -350,6 +356,19 @@ const cancelarPedido = () => {
         { accion: "cancelar" },
         {
             onError: (errors) => alert(Object.values(errors).join(", ")),
+        }
+    );
+};
+
+const marcarEnviado = () => {
+    if (!confirm("¿Está seguro de marcar este pedido como enviado?")) return;
+
+    router.patch(
+        route("pedidos.marcar-enviado", props.pedido.id),
+        {},
+        {
+            onError: (errors) => alert(Object.values(errors).join(", ")),
+            onSuccess: () => alert("Pedido marcado como enviado exitosamente"),
         }
     );
 };

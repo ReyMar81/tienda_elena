@@ -272,14 +272,15 @@
                                     </h5>
                                 </div>
 
-                                <!-- Botón Proceder al Pago -->
-                                <Link
-                                    :href="route('pedidos.checkout')"
+                                <!-- Botón Proceder al Pedido -->
+                                <button
+                                    @click="abrirModalDireccion"
                                     class="btn btn-primary w-100 mb-2"
+                                    type="button"
                                 >
                                     <i class="bi bi-credit-card me-2"></i>
                                     Realizar Pedido
-                                </Link>
+                                </button>
 
                                 <Link
                                     :href="route('dashboard')"
@@ -291,6 +292,97 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Dirección de Entrega -->
+        <div 
+            v-if="showDireccionModal" 
+            class="modal fade show d-block" 
+            tabindex="-1" 
+            style="background-color: rgba(0,0,0,0.5);"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-geo-alt me-2"></i>
+                            Dirección de Entrega
+                        </h5>
+                        <button 
+                            type="button" 
+                            class="btn-close" 
+                            @click="showDireccionModal = false"
+                        ></button>
+                    </div>
+                    <form @submit.prevent="realizarPedido">
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <small>
+                                    Ingresa la dirección donde deseas recibir tu pedido. 
+                                    El pago se realizará mediante código QR.
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label">
+                                    Dirección Completa <span class="text-danger">*</span>
+                                </label>
+                                <textarea
+                                    id="direccion"
+                                    v-model="formDireccion.direccion_entrega"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Ej: Calle Los Pinos #123, Zona Sur, La Paz - Referencias: Frente al mercado"
+                                    required
+                                    minlength="10"
+                                    maxlength="500"
+                                ></textarea>
+                                <small class="text-muted">
+                                    Mínimo 10 caracteres. Incluye referencias para facilitar la entrega.
+                                </small>
+                                <div v-if="formDireccion.errors.direccion_entrega" class="text-danger small mt-1">
+                                    {{ formDireccion.errors.direccion_entrega }}
+                                </div>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <h6 class="mb-2">
+                                    <i class="bi bi-cash-coin me-2"></i>
+                                    Total a Pagar: <strong>Bs. {{ Number(total).toFixed(2) }}</strong>
+                                </h6>
+                                <small>
+                                    Se generará un código QR para realizar el pago.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button 
+                                type="button" 
+                                class="btn btn-secondary" 
+                                @click="showDireccionModal = false"
+                                :disabled="formDireccion.processing"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary"
+                                :disabled="formDireccion.processing || !formDireccion.direccion_entrega"
+                            >
+                                <span v-if="formDireccion.processing">
+                                    <i class="bi bi-hourglass-split me-2"></i>
+                                    Procesando...
+                                </span>
+                                <span v-else>
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Confirmar Pedido
+                                </span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -306,6 +398,12 @@ const props = defineProps({
     carrito: Object,
     detalles: Array,
     total: Number,
+});
+
+// Modal para dirección de entrega
+const showDireccionModal = ref(false);
+const formDireccion = useForm({
+    direccion_entrega: ''
 });
 
 // Calcular subtotal sin descuentos
@@ -357,6 +455,21 @@ const vaciarCarrito = () => {
             preserveScroll: true,
         });
     }
+};
+
+// Realizar pedido online
+const abrirModalDireccion = () => {
+    showDireccionModal.value = true;
+};
+
+const realizarPedido = () => {
+    formDireccion.post(route('carrito.realizar-pedido'), {
+        preserveScroll: false,
+        onSuccess: () => {
+            showDireccionModal.value = false;
+            formDireccion.reset();
+        }
+    });
 };
 </script>
 

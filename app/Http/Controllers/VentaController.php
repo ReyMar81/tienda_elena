@@ -23,6 +23,8 @@ class VentaController extends Controller
      */
     public function index(Request $request)
     {
+        $origen = $request->input('origen', 'tienda');
+        
         $query = Venta::with([
             'user', 
             'vendedor', 
@@ -30,7 +32,8 @@ class VentaController extends Controller
             'detalles.producto',
             'credito.cuotas.pagos.metodoPago'
         ])
-            ->where('estado', 'pagado') // Solo ventas confirmadas
+            ->where('estado', '!=', 'pendiente') // Excluir pedidos pendientes
+            ->where('origen', $origen) // Filtrar por origen
             ->orderBy('created_at', 'desc');
 
         // Si es cliente, solo mostrar sus propias ventas
@@ -40,8 +43,19 @@ class VentaController extends Controller
 
         $ventas = $query->paginate(20);
 
+        // Añadir cuotas_pendientes a cada venta si es de tipo crédito
+        $ventas->getCollection()->transform(function ($venta) {
+            if ($venta->tipo_pago === 'credito' && $venta->credito) {
+                $venta->cuotas_pendientes = $venta->credito->cuotas_pendientes;
+            } else {
+                $venta->cuotas_pendientes = 0;
+            }
+            return $venta;
+        });
+
         return Inertia::render('Ventas/Index', [
             'ventas' => $ventas,
+            'filtro_origen' => $origen,
         ]);
     }
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->decimal('descuento', 10, 2)->default(0);
             $table->decimal('total', 10, 2);
-            $table->enum('estado', ['pendiente', 'pagado', 'anulado'])->default('pendiente');
+            $table->enum('estado', ['pendiente', 'pagado', 'enviado', 'anulado'])->default('pendiente');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

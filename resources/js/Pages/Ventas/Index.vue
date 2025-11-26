@@ -14,6 +14,26 @@
                 </div>
             </div>
 
+            <!-- Filtros de origen -->
+            <div class="d-flex gap-3 mb-4">
+                <div class="btn-group" role="group">
+                    <button
+                        class="btn btn-outline-primary"
+                        :class="{ active: filtroOrigen === 'tienda' }"
+                        @click="cambiarFiltroOrigen('tienda')"
+                    >
+                        <i class="bi bi-shop me-1"></i> Tienda
+                    </button>
+                    <button
+                        class="btn btn-outline-success"
+                        :class="{ active: filtroOrigen === 'online' }"
+                        @click="cambiarFiltroOrigen('online')"
+                    >
+                        <i class="bi bi-globe2 me-1"></i> Online
+                    </button>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
@@ -25,6 +45,7 @@
                                     <th>Cliente</th>
                                     <th>Método Pago</th>
                                     <th>Tipo de Pago</th>
+                                    <th v-if="filtroOrigen === 'online'">Dirección de Entrega</th>
                                     <th class="text-end">Total</th>
                                     <th class="text-center">Estado</th>
                                     <th class="text-center">Acciones</th>
@@ -37,7 +58,7 @@
                                         No se encontraron ventas
                                     </td>
                                 </tr>
-                                <tr v-for="venta in ventas.data" :key="venta.id">
+                                <tr v-for="venta in ventas.data.filter(v => (filtroOrigen === 'tienda' ? v.estado === 'pagado' : v.estado === 'enviado'))" :key="venta.id">
                                     <td>
                                         <strong>#{{ venta.id }}</strong>
                                     </td>
@@ -56,13 +77,30 @@
                                             {{ venta.tipo_pago === "credito" ? "A Crédito" : "Al Contado" }}
                                         </span>
                                     </td>
+                                    <td v-if="filtroOrigen === 'online'">
+                                        {{ venta.direccion_entrega || 'N/A' }}
+                                    </td>
                                     <td class="text-end">
                                         <strong class="text-primary">Bs. {{ parseFloat(venta.total || 0).toFixed(2) }}</strong>
                                     </td>
                                     <td class="text-center">
-                                        <span :class="getEstadoBadge(venta.estado)">
-                                            {{ venta.estado }}
-                                        </span>
+                                        <template v-if="
+                                            filtroOrigen === 'tienda' &&
+                                            venta.estado === 'pagado' &&
+                                            venta.tipo_pago === 'credito'
+                                        ">
+                                            <span v-if="venta.cuotas_pendientes > 0" class="badge bg-warning text-dark">
+                                                Pagos en proceso
+                                            </span>
+                                            <span v-else class="badge bg-success">
+                                                Pagado
+                                            </span>
+                                        </template>
+                                        <template v-else>
+                                            <span :class="getEstadoBadge(venta.estado)">
+                                                {{ venta.estado }}
+                                            </span>
+                                        </template>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
@@ -115,12 +153,27 @@
 </template>
 
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { computed } from "vue";
+import { Link, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
 
 const props = defineProps({
     ventas: Object,
+    filtro_origen: String,
 });
+
+const filtroOrigen = computed(() => props.filtro_origen || 'tienda');
+
+const cambiarFiltroOrigen = (origen) => {
+    router.get(
+        route("ventas.index"),
+        { origen },
+        {
+            preserveState: false,
+            preserveScroll: false,
+        }
+    );
+};
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -137,6 +190,7 @@ const getEstadoBadge = (estado) => {
     const badges = {
         pendiente: "badge bg-warning",
         pagado: "badge bg-success",
+        enviado: "badge bg-info",
         anulado: "badge bg-danger",
     };
     return badges[estado] || "badge bg-secondary";

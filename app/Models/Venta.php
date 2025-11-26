@@ -19,7 +19,12 @@ class Venta extends Model
         'total',
         'estado',
         'numero_venta',
-        'observaciones'
+        'observaciones',
+        'origen',
+        'direccion_entrega',
+        'pago_facil_transaction_id',
+        'pago_facil_qr_image',
+        'pago_facil_status'
     ];
 
     protected $casts = [
