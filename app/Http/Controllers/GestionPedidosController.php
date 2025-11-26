@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Producto;
 use App\Models\MetodoPago;
 use App\Services\PromocionService;
+use App\Services\PagoFacilService;
 use App\Http\Requests\StorePedidoRequest;
 use App\Http\Requests\UpdatePedidoRequest;
 use App\Http\Requests\AccionPedidoRequest;
@@ -20,10 +21,12 @@ use Illuminate\Support\Facades\DB;
 class GestionPedidosController extends Controller
 {
     protected $promocionService;
+    protected $pagoFacilService;
 
-    public function __construct(PromocionService $promocionService)
+    public function __construct(PromocionService $promocionService, PagoFacilService $pagoFacilService)
     {
         $this->promocionService = $promocionService;
+        $this->pagoFacilService = $pagoFacilService;
     }
 
     /**
@@ -170,18 +173,68 @@ class GestionPedidosController extends Controller
             }
             
             // Si se marca "Confirmar inmediatamente"
+
             if ($request->confirmar_inmediatamente) {
+                // Cargar método de pago
+                $pedido->load('metodoPago');
+                $esMetodoQR = $pedido->metodoPago && strtoupper($pedido->metodoPago->nombre) === 'QR';
+
+                if ($esMetodoQR && $request->tipo_pago === 'credito') {
+                    // 1. Generar crédito y cuotas
+                    $numeroCuotas = $request->numero_cuotas ?? 3;
+                    $credito = $this->crearCredito($pedido, $numeroCuotas);
+                    // 2. Buscar la primera cuota pendiente
+                    $primeraCuota = $credito->cuotas()->orderBy('numero_cuota')->first();
+                    if ($primeraCuota) {
+                        // 3. Generar QR para la primera cuota
+                        $glosa = "Pago 1/{$numeroCuotas} Pedido #{$pedido->numero_venta}";
+                        $qrData = $this->pagoFacilService->generarQRCuotaSimulado(
+                            $primeraCuota->id,
+                            $primeraCuota->monto,
+                            $glosa
+                        );
+                        // 4. Crear un pago pendiente para la cuota con el QR
+                        \App\Models\Pago::create([
+                            'cuota_id' => $primeraCuota->id,
+                            'metodo_pago_id' => $pedido->metodo_pago_id,
+                            'monto' => $primeraCuota->monto,
+                            'recargo_extra' => 0,
+                            'interes_mora_cobrado' => 0,
+                            'fecha' => now(),
+                            'pago_facil_transaction_id' => $qrData['transaction_id'],
+                            'pago_facil_qr_image' => $qrData['qr_image'],
+                            'pago_facil_status' => 'pending',
+                        ]);
+                        DB::commit();
+                        return redirect()->route('pedidos.show', $pedido->id)
+                            ->with('success', 'QR generado para la primera cuota. Escanea el código para completar el pago inicial.');
+                    }
+                } elseif ($esMetodoQR) {
+                    // Si es QR pero no crédito, QR normal por el total
+                    $glosa = "Pedido Tienda #{$pedido->numero_venta}";
+                    $qrData = $this->pagoFacilService->generarQRVentaSimulado(
+                        $pedido->id,
+                        $pedido->total,
+                        $glosa
+                    );
+                    $pedido->update([
+                        'pago_facil_transaction_id' => $qrData['transaction_id'],
+                        'pago_facil_qr_image' => $qrData['qr_image'],
+                        'pago_facil_status' => 'pending'
+                    ]);
+                    DB::commit();
+                    return redirect()->route('pedidos.show', $pedido->id)
+                        ->with('success', 'QR generado. Escanea el código para completar el pago.');
+                }
+
+                // Si no es QR, pago inmediato normal
                 $pedido->estado = 'pagado';
                 $pedido->save();
-                
-                // Si es crédito, generar crédito y cuotas
                 if ($request->tipo_pago === 'credito') {
                     $numeroCuotas = $request->numero_cuotas ?? 3;
                     $this->crearCredito($pedido, $numeroCuotas);
                 }
-                
                 DB::commit();
-                
                 return redirect()->route('ventas.index')
                     ->with('success', "Venta {$numeroVenta} creada y confirmada exitosamente.");
             }
@@ -202,11 +255,34 @@ class GestionPedidosController extends Controller
      */
     public function show($id)
     {
-        $pedido = Venta::with(['user', 'vendedor', 'metodoPago', 'detalles.producto.categoria'])
-            ->findOrFail($id);
-        
+        $pedido = Venta::with([
+            'user',
+            'vendedor',
+            'metodoPago',
+            'detalles.producto.categoria',
+            'credito.cuotas.pagos',
+        ])->findOrFail($id);
+
+        // Si es crédito y QR, buscar el QR de la primera cuota pendiente
+        $qrCuota = null;
+        if ($pedido->tipo_pago === 'credito' && $pedido->metodoPago && strtoupper($pedido->metodoPago->nombre) === 'QR' && $pedido->credito) {
+            $primeraCuota = $pedido->credito->cuotas->where('estado', 'pendiente')->sortBy('numero_cuota')->first();
+            if ($primeraCuota && $primeraCuota->pagos->count()) {
+                $pagoQR = $primeraCuota->pagos->where('pago_facil_status', 'pending')->first();
+                if ($pagoQR) {
+                    $qrCuota = [
+                        'qr_image' => $pagoQR->pago_facil_qr_image,
+                        'transaction_id' => $pagoQR->pago_facil_transaction_id,
+                        'monto' => $pagoQR->monto,
+                        'status' => $pagoQR->pago_facil_status,
+                    ];
+                }
+            }
+        }
+
         return Inertia::render('Pedidos/Show', [
             'pedido' => $pedido,
+            'qrCuota' => $qrCuota,
         ]);
     }
     
@@ -323,7 +399,7 @@ class GestionPedidosController extends Controller
      */
     public function accion(AccionPedidoRequest $request, $id)
     {
-        $pedido = Venta::findOrFail($id);
+        $pedido = Venta::with('metodoPago')->findOrFail($id);
         
         if ($request->accion === 'confirmar') {
             // Si es crédito y no se proporcionó numero_cuotas, validar
@@ -333,6 +409,31 @@ class GestionPedidosController extends Controller
                 ]);
             }
             
+            // Verificar si el método de pago es QR
+            $esMetodoQR = $pedido->metodoPago && strtoupper($pedido->metodoPago->nombre) === 'QR';
+            
+            if ($esMetodoQR) {
+                // Generar QR para pago
+                $glosa = "Pedido Tienda #{$pedido->numero_venta}";
+                $qrData = $this->pagoFacilService->generarQRVentaSimulado(
+                    $pedido->id,
+                    $pedido->total,
+                    $glosa
+                );
+                
+                // Actualizar pedido con datos del QR
+                $pedido->update([
+                    'pago_facil_transaction_id' => $qrData['transaction_id'],
+                    'pago_facil_qr_image' => $qrData['qr_image'],
+                    'pago_facil_status' => 'pending'
+                ]);
+                
+                // Redirigir a la vista del pedido para mostrar el QR
+                return redirect()->route('pedidos.show', $pedido->id)
+                    ->with('success', 'QR generado. Escanea el código para completar el pago.');
+            }
+            
+            // Para otros métodos de pago (efectivo, tarjeta, etc.)
             $pedido->estado = 'pagado';
             $pedido->vendedor_id = auth()->id();
             $pedido->save();

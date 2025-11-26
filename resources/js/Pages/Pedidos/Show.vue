@@ -100,6 +100,44 @@
                 </div>
             </div>
 
+            <!-- Código QR para Pago (al contado: QR del pedido, a crédito: QR de la primera cuota) -->
+            <div v-if="pedido.estado === 'pendiente' && (qrCuota || pedido.pago_facil_qr_image)" class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark border-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-qr-code me-2"></i>
+                        Escanea el QR para Pagar
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <QRPayment
+                                v-if="qrCuota"
+                                :qr-image="qrCuota.qr_image"
+                                :transaction-id="qrCuota.transaction_id"
+                                :monto="qrCuota.monto"
+                                :descripcion="`Pago de la primera cuota del pedido #${pedido.numero_venta}`"
+                                :status="qrCuota.status || 'pending'"
+                            />
+                            <QRPayment
+                                v-else
+                                :qr-image="pedido.pago_facil_qr_image"
+                                :transaction-id="pedido.pago_facil_transaction_id"
+                                :monto="pedido.total"
+                                :descripcion="`Pedido #${pedido.numero_venta}`"
+                                :status="pedido.pago_facil_status || 'pending'"
+                            />
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Instrucciones:</strong> Escanea el código QR con tu app bancaria para completar el pago. 
+                        <span v-if="qrCuota">Este QR corresponde a la primera cuota. Una vez pagada, se registrará como cuota pagada en el crédito.</span>
+                        <span v-else>Una vez confirmado el pago, el pedido pasará automáticamente a estado "Pagado".</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Productos del Pedido -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white border-0">
@@ -223,30 +261,31 @@
                 </div>
             </div>
 
-            <!-- Ya procesado -->
-            <div
-                v-else
-                class="card shadow-sm border-0"
-            >
-                <div class="card-body">
 
+            <!-- Ya procesado -->
+            <div v-else class="card shadow-sm border-0">
+                <div class="card-body">
                     <div
-                        :class="pedido.estado === 'completada'
-                            ? 'alert alert-success'
-                            : 'alert alert-warning'"
+                        :class="
+                            pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
+                                ? 'alert alert-success'
+                                : 'alert alert-warning'"
                     >
                         <i
-                            :class="pedido.estado === 'completada'
-                                ? 'bi bi-check-circle'
-                                : 'bi bi-exclamation-triangle'"
+                            :class="
+                                pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
+                                    ? 'bi bi-check-circle'
+                                    : 'bi bi-exclamation-triangle'"
                             class="me-2"
                         ></i>
 
                         <strong>
                             {{
-                                pedido.estado === "completada"
-                                    ? "Pedido Confirmado"
-                                    : "Pedido Cancelado"
+                                pedido.estado === 'pagado' ? 'Pedido Pagado'
+                                : pedido.estado === 'enviado' ? 'Pedido Enviado'
+                                : pedido.estado === 'completada' ? 'Pedido Confirmado'
+                                : pedido.estado === 'anulado' ? 'Pedido Cancelado'
+                                : 'Pedido Procesado'
                             }}
                         </strong>
                         - Este pedido ya fue procesado y no se puede modificar.
@@ -280,11 +319,17 @@ import { ref } from "vue";
 import { Link, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import CreditoModal from "@/Components/CreditoModal.vue";
+import QRPayment from "@/Components/QRPayment.vue";
 
 const props = defineProps({
     pedido: {
         type: Object,
         required: true,
+    },
+    qrCuota: {
+        type: Object,
+        required: false,
+        default: null,
     },
 });
 
