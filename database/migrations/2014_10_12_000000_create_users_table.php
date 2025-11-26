@@ -28,10 +28,6 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
 
-            // Rol del usuario
-            $table->unsignedBigInteger('role_id')->default(3); // 3 = Cliente por defecto
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('restrict');
-
             // Otros campos del sistema Jetstream
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
