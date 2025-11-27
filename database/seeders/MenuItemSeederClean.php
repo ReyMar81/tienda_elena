@@ -33,35 +33,49 @@ class MenuItemSeederClean extends Seeder
 
             // Rutas CRUD para autorización (NO visibles en menú - para Policies)
             ['etiqueta' => 'Crear Producto', 'ruta_laravel' => 'productos.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Guardar Producto', 'ruta_laravel' => 'productos.store', 'icono' => 'bi-save', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Editar Producto', 'ruta_laravel' => 'productos.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Producto', 'ruta_laravel' => 'productos.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Ver Producto', 'ruta_laravel' => 'productos.show', 'icono' => 'bi-eye', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Eliminar Producto', 'ruta_laravel' => 'productos.destroy', 'icono' => 'bi-trash', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             
             ['etiqueta' => 'Crear Categoría', 'ruta_laravel' => 'categorias.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Guardar Categoría', 'ruta_laravel' => 'categorias.store', 'icono' => 'bi-save', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Editar Categoría', 'ruta_laravel' => 'categorias.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Categoría', 'ruta_laravel' => 'categorias.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Ver Categoría', 'ruta_laravel' => 'categorias.show', 'icono' => 'bi-eye', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Eliminar Categoría', 'ruta_laravel' => 'categorias.destroy', 'icono' => 'bi-trash', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             
             ['etiqueta' => 'Crear Promoción', 'ruta_laravel' => 'promociones.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Guardar Promoción', 'ruta_laravel' => 'promociones.store', 'icono' => 'bi-save', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Editar Promoción', 'ruta_laravel' => 'promociones.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Promoción', 'ruta_laravel' => 'promociones.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Ver Promoción', 'ruta_laravel' => 'promociones.show', 'icono' => 'bi-eye', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Eliminar Promoción', 'ruta_laravel' => 'promociones.destroy', 'icono' => 'bi-trash', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             
             ['etiqueta' => 'Crear Usuario', 'ruta_laravel' => 'usuarios.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Guardar Usuario', 'ruta_laravel' => 'usuarios.store', 'icono' => 'bi-save', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Editar Usuario', 'ruta_laravel' => 'usuarios.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Usuario', 'ruta_laravel' => 'usuarios.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Ver Usuario', 'ruta_laravel' => 'usuarios.show', 'icono' => 'bi-eye', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Eliminar Usuario', 'ruta_laravel' => 'usuarios.destroy', 'icono' => 'bi-trash', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             
             ['etiqueta' => 'Crear Crédito', 'ruta_laravel' => 'creditos.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Editar Crédito', 'ruta_laravel' => 'creditos.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Crédito', 'ruta_laravel' => 'creditos.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Eliminar Crédito', 'ruta_laravel' => 'creditos.destroy', 'icono' => 'bi-trash', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             
             ['etiqueta' => 'Registrar Pago', 'ruta_laravel' => 'pagos.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Guardar Pago', 'ruta_laravel' => 'pagos.store', 'icono' => 'bi-save', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Editar Pago', 'ruta_laravel' => 'pagos.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Pago', 'ruta_laravel' => 'pagos.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Eliminar Pago', 'ruta_laravel' => 'pagos.destroy', 'icono' => 'bi-trash', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             
             ['etiqueta' => 'Ver Pedido', 'ruta_laravel' => 'pedidos.show', 'icono' => 'bi-eye', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Crear Pedido', 'ruta_laravel' => 'pedidos.create', 'icono' => 'bi-plus-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Guardar Pedido', 'ruta_laravel' => 'pedidos.store', 'icono' => 'bi-save', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Editar Pedido', 'ruta_laravel' => 'pedidos.edit', 'icono' => 'bi-pencil', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['etiqueta' => 'Actualizar Pedido', 'ruta_laravel' => 'pedidos.update', 'icono' => 'bi-arrow-repeat', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Confirmar Pedido', 'ruta_laravel' => 'pedidos.confirmar', 'icono' => 'bi-check-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['etiqueta' => 'Cancelar Pedido', 'ruta_laravel' => 'pedidos.cancelar', 'icono' => 'bi-x-circle', 'orden' => 999, 'role_id' => 1, 'created_at' => now(), 'updated_at' => now()],
 
@@ -105,9 +119,9 @@ class MenuItemSeederClean extends Seeder
         DB::table('menu_items')->insert($menuItems);
 
         echo "\n✅ Menú limpio insertado correctamente.\n";
-        echo "- Propietario: 10 módulos principales (Dashboard, Productos, Categorías, Promociones, Ventas, Pedidos, Usuarios, Créditos, Pagos, Reportes)\n";
+        echo "- Propietario: 10 módulos principales + permisos CRUD completos (create, store, edit, update, show, destroy)\n";
         echo "- Vendedor: 7 módulos (Dashboard, Productos, Ventas, Pedidos, Créditos, Pagos, Reportes)\n";
         echo "- Cliente: 7 módulos (Dashboard, Productos, Promociones, Carrito, Mis Pedidos, Mis Créditos, Mis Pagos)\n";
-        echo "- Las rutas CRUD (create, edit, show, destroy) existen para autorización pero NO se muestran en el menú lateral.\n";
+        echo "- Las rutas CRUD existen para autorización pero NO se muestran en el menú lateral.\n";
     }
 }

@@ -27,7 +27,7 @@ class PromocionPolicy
 
     public function update(User $user, Promocion $promocion): bool
     {
-        return $this->userHasAccessToRoute($user, 'promociones.edit');
+        return $this->userHasAccessToRoute($user, 'promociones.update');
     }
 
     public function delete(User $user, Promocion $promocion): bool

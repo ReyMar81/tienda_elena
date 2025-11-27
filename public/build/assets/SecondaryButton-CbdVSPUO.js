@@ -1,1 +1,0 @@
-import{c as o,l as n,o as s}from"./app-BM_Csk7S.js";const r=["type"],p={__name:"SecondaryButton",props:{type:{type:String,default:"button"}},setup(t){return(e,a)=>(s(),o("button",{type:t.type,class:"btn btn-secondary text-uppercase fw-semibold"},[n(e.$slots,"default")],8,r))}};export{p as _};

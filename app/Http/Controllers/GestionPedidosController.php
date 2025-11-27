@@ -37,7 +37,7 @@ class GestionPedidosController extends Controller
         $origen = $request->input('origen', 'tienda'); // tienda u online
         $estado = $request->input('estado', 'pendiente');
 
-        $query = Venta::with(['user', 'vendedor', 'metodoPago', 'detalles.producto'])
+        $query = Venta::with(['user', 'vendedor', 'metodoPago', 'detalles.producto', 'credito.cuotas'])
             ->orderBy('created_at', 'desc');
 
         // Filtrar por origen

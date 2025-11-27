@@ -14,7 +14,7 @@ class StoreVentaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'metodo_pago_id' => 'required|exists:metodo_pago,id',
+            'metodo_pago_id' => 'required|exists:metodos_pago,id',
             'tipo_venta' => 'required|in:contado,credito',
             // Campos para crédito
             'meses_plazo' => 'required_if:tipo_venta,credito|nullable|integer|min:1|max:36',

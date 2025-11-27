@@ -430,7 +430,7 @@ const confirmarCredito = (n) => {
 const enviarFormulario = () => {
     processing.value = true;
 
-    router.post(route("pedidos.store"), form.value, {
+    router.post(route("pedidos.admin.store"), form.value, {
         onFinish: () => (processing.value = false),
     });
 };

@@ -23,32 +23,8 @@ class MetodosPagoSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nombre' => 'Tarjeta de Crédito',
-                'descripcion' => 'Pago mediante tarjeta de crédito Visa, Mastercard o American Express',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nombre' => 'Tarjeta de Débito',
-                'descripcion' => 'Pago mediante tarjeta de débito con cargo inmediato',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nombre' => 'Transferencia Bancaria',
-                'descripcion' => 'Transferencia directa a cuenta bancaria de la tienda',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
                 'nombre' => 'QR',
                 'descripcion' => 'Pago mediante código QR con billeteras digitales',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nombre' => 'Crédito',
-                'descripcion' => 'Venta a crédito con pago en cuotas mensuales',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

@@ -39,8 +39,19 @@
                                     <tr>
                                         <td class="fw-bold">Estado:</td>
                                         <td>
-                                            <span :class="getBadgeClass(pedido.estado)" class="badge">
-                                                {{ pedido.estado.toUpperCase() }}
+                                            <span 
+                                                :class="
+                                                    pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                                        ? 'badge bg-warning text-dark'
+                                                        : getBadgeClass(pedido.estado)
+                                                " 
+                                                class="badge"
+                                            >
+                                                {{ 
+                                                    pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                                        ? `Crédito (${pedido.credito.cuotas.filter(c => c.estado === 'pagado').length}/${pedido.credito.cuotas.length})`
+                                                        : pedido.estado.toUpperCase() 
+                                                }}
                                             </span>
                                         </td>
                                     </tr>
@@ -267,37 +278,60 @@
                 <div class="card-body">
                     <div
                         :class="
-                            pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
-                                ? 'alert alert-success'
-                                : 'alert alert-warning'"
+                            pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                ? 'alert alert-info'
+                                : (pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
+                                    ? 'alert alert-success'
+                                    : 'alert alert-warning')
+                        "
                     >
                         <i
                             :class="
-                                pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
-                                    ? 'bi bi-check-circle'
-                                    : 'bi bi-exclamation-triangle'"
+                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                    ? 'bi bi-clock-history'
+                                    : (pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
+                                        ? 'bi bi-check-circle'
+                                        : 'bi bi-exclamation-triangle')
+                            "
                             class="me-2"
                         ></i>
 
                         <strong>
                             {{
-                                pedido.estado === 'pagado' ? 'Pedido Pagado'
-                                : pedido.estado === 'enviado' ? 'Pedido Enviado'
-                                : pedido.estado === 'completada' ? 'Pedido Confirmado'
-                                : pedido.estado === 'anulado' ? 'Pedido Cancelado'
-                                : 'Pedido Procesado'
+                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                    ? `Crédito en Curso (${pedido.credito.cuotas.filter(c => c.estado === 'pagado').length}/${pedido.credito.cuotas.length} cuotas pagadas)`
+                                    : (pedido.estado === 'pagado' ? 'Pedido Pagado'
+                                    : pedido.estado === 'enviado' ? 'Pedido Enviado'
+                                    : pedido.estado === 'completada' ? 'Pedido Confirmado'
+                                    : pedido.estado === 'anulado' ? 'Pedido Cancelado'
+                                    : 'Pedido Procesado')
                             }}
                         </strong>
-                        - Este pedido ya fue procesado y no se puede modificar.
+                        - {{ 
+                            pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                ? 'El pedido fue entregado pero el crédito sigue pendiente de pago.'
+                                : 'Este pedido ya fue procesado y no se puede modificar.'
+                        }}
                     </div>
 
-                    <Link
-                        :href="route('pedidos.index')"
-                        class="btn btn-secondary"
-                    >
-                        <i class="bi bi-arrow-left me-1"></i>
-                        Volver a Pedidos
-                    </Link>
+                    <div class="d-flex gap-2">
+                        <Link
+                            :href="route('pedidos.index')"
+                            class="btn btn-secondary"
+                        >
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Volver a Pedidos
+                        </Link>
+
+                        <Link
+                            v-if="pedido.tipo_pago === 'credito' && pedido.credito"
+                            :href="route('creditos.show', pedido.credito.id)"
+                            class="btn btn-info text-white"
+                        >
+                            <i class="bi bi-credit-card me-1"></i>
+                            Ver Detalle del Crédito
+                        </Link>
+                    </div>
                 </div>
             </div>
 

@@ -116,10 +116,10 @@ Route::middleware([
         Route::get('categorias/{categoria}/detalles', [CategoriaController::class, 'show'])->name('categorias.show');
         Route::resource('categorias', CategoriaController::class)->except(['create', 'edit', 'show']);
 
-        // Promociones (CRUD completo con URLs en español, solo para propietario)
+        // Promociones (CRUD completo - movido aquí para consistencia con Productos/Categorías)
         Route::get('promociones/crear', [PromocionController::class, 'create'])->name('promociones.create');
         Route::get('promociones/{promocion}/editar', [PromocionController::class, 'edit'])->name('promociones.edit');
-        Route::resource('promociones', PromocionController::class)->only(['store', 'update', 'destroy']);
+        Route::resource('promociones', PromocionController::class)->only(['store', 'update', 'destroy'])->parameters(['promociones' => 'promocion']);
 
         // Usuarios (CRUD completo con URLs en español)
         Route::get('usuarios/crear', [UserController::class, 'create'])->name('usuarios.create');
@@ -180,7 +180,7 @@ Route::middleware([
     Route::middleware('role:Propietario,Vendedor')->group(function () {
         Route::get('/pedidos', [\App\Http\Controllers\GestionPedidosController::class, 'index'])->name('pedidos.index');
         Route::get('/pedidos/crear', [\App\Http\Controllers\GestionPedidosController::class, 'create'])->name('pedidos.create');
-        Route::post('/pedidos', [GestionPedidosController::class, 'store'])->name('pedidos.admin.store');
+        Route::post('/pedidos', [\App\Http\Controllers\GestionPedidosController::class, 'store'])->name('pedidos.admin.store');
         Route::get('/pedidos/{id}/detalles', [\App\Http\Controllers\GestionPedidosController::class, 'show'])->name('pedidos.show');
         Route::get('/pedidos/{id}/editar', [\App\Http\Controllers\GestionPedidosController::class, 'edit'])->name('pedidos.edit');
         Route::put('/pedidos/{id}', [\App\Http\Controllers\GestionPedidosController::class, 'update'])->name('pedidos.update');

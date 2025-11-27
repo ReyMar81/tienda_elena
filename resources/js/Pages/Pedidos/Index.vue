@@ -363,10 +363,16 @@ const visiblePages = computed(() => {
                                         <span
                                             class="badge"
                                             :class="
-                                                getBadgeClass(pedido.estado)
+                                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                                    ? 'bg-warning text-dark'
+                                                    : getBadgeClass(pedido.estado)
                                             "
                                         >
-                                            {{ pedido.estado }}
+                                            {{ 
+                                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                                    ? `Crédito (${pedido.credito.cuotas.filter(c => c.estado === 'pagado').length}/${pedido.credito.cuotas.length})`
+                                                    : pedido.estado 
+                                            }}
                                         </span>
                                     </td>
                                     <td class="text-center">

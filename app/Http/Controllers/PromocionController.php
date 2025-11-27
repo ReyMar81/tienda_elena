@@ -37,6 +37,7 @@ class PromocionController extends Controller
 
     public function create()
     {
+        
         $productos = Producto::select('id', 'nombre', 'codigo')->orderBy('nombre')->get();
         $categorias = Categoria::select('id', 'nombre')->orderBy('nombre')->get();
 
@@ -102,6 +103,7 @@ class PromocionController extends Controller
 
     public function edit(Promocion $promocion)
     {
+        
         $promocion->load([
             'productos' => function ($query) {
                 $query->withPivot('aplica_mayorista', 'aplica_minorista');
@@ -123,6 +125,7 @@ class PromocionController extends Controller
 
     public function update(UpdatePromocionRequest $request, Promocion $promocion)
     {
+        
         $data = $request->validated();
         
         $productos = $data['productos'] ?? [];
@@ -157,6 +160,7 @@ class PromocionController extends Controller
 
     public function destroy(Promocion $promocion)
     {
+        
         // Desasociar relaciones antes de eliminar
         $promocion->productos()->detach();
         $promocion->categorias()->detach();
