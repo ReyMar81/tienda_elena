@@ -18,11 +18,11 @@ class Role extends Model
     ];
 
     /**
-     * Relación con usuarios (muchos a muchos)
+     * Relación con usuarios (uno a muchos)
      */
     public function users()
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->hasMany(User::class);
     }
 
     /**

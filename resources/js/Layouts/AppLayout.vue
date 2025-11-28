@@ -469,6 +469,11 @@ const logout = () => {
                     }"
                     class="d-sm-none border-top"
                 >
+                    <!-- Search Box (Mobile) -->
+                    <div class="p-3 border-bottom">
+                        <SearchBox />
+                    </div>
+
                     <div class="mt-2">
                         <template v-for="item in menuItems" :key="item.id">
                             <!-- Item con submenús -->

@@ -1,71 +1,44 @@
 <template>
     <div class="search-box position-relative w-100">
-        <div class="input-group input-group-sm">
+        <div class="input-group">
             <span class="input-group-text bg-white border-end-0">
                 <i class="bi bi-search"></i>
             </span>
             <input
-                type="text"
-                class="form-control border-start-0 ps-0"
-                placeholder="Buscar productos, promociones..."
-                v-model="searchQuery"
-                @input="handleInput"
-                @focus="handleFocus"
-                @keydown.esc="clearSearch"
+                type="search"
+                class="form-control border-start-0"
+                :placeholder="'Buscar productos, promociones o menús...'"
+                v-model="searchQueryLocal"
+                @input="onInput"
+                @keydown.esc="clearAndClose"
+                @focus="onFocus"
+                aria-label="Búsqueda global"
             />
             <button
-                v-if="searchQuery"
-                class="btn btn-link text-muted"
-                @click="clearSearch"
+                v-if="isSearching"
+                class="btn btn-outline-secondary"
                 type="button"
+                disabled
             >
-                <i class="bi bi-x-circle"></i>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             </button>
         </div>
 
-        <!-- Spinner de carga -->
-        <div
-            v-if="isSearching"
-            class="position-absolute end-0 top-50 translate-middle-y me-5"
-        >
-            <div
-                class="spinner-border spinner-border-sm text-primary"
-                role="status"
-            >
-                <span class="visually-hidden">Buscando...</span>
-            </div>
-        </div>
-
-        <!-- Resultados -->
+        <!-- Renderizar resultados (componente separado) -->
         <SearchResults
-            v-if="
-                showResults &&
-                (searchResults.productos.length > 0 ||
-                    searchResults.promociones.length > 0)
-            "
-            :productos="searchResults.productos"
-            :promociones="searchResults.promociones"
+            v-if="showResults"
+            :productos="searchResults.productos || []"
+            :promociones="searchResults.promociones || []"
+            :menus="searchResults.menus || []"
             @close="closeResults"
         />
-
-        <!-- Sin resultados -->
-        <div
-            v-else-if="showResults && searchQuery.length >= 2 && !isSearching"
-            class="position-absolute top-100 start-0 w-100 mt-2 card shadow-lg"
-            style="z-index: 1050"
-        >
-            <div class="card-body text-center text-muted py-4">
-                <i class="bi bi-inbox" style="font-size: 2rem"></i>
-                <p class="mb-0 mt-2">No se encontraron resultados</p>
-            </div>
-        </div>
     </div>
 </template>
 
 <script setup>
-import { watch } from "vue";
-import { useSearch } from "@/composables/useSearch";
-import SearchResults from "@/Components/SearchResults.vue";
+import { ref, watch } from 'vue';
+import SearchResults from '@/Components/SearchResults.vue';
+import { useSearch } from '@/composables/useSearch';
 
 const {
     searchQuery,
@@ -77,52 +50,44 @@ const {
     closeResults,
 } = useSearch();
 
-const handleInput = (e) => {
-    search(e.target.value);
+// Local v-model proxy so we can debounce via composable
+const searchQueryLocal = ref(searchQuery.value || '');
+
+const onInput = (e) => {
+    const q = e.target.value;
+    search(q);
 };
 
-const handleFocus = () => {
-    if (searchQuery.value.length >= 2) {
-        search(searchQuery.value);
+const onFocus = () => {
+    if ((searchResults.value && (searchResults.value.productos?.length || searchResults.value.promociones?.length || searchResults.value.menus?.length))) {
+        showResults.value = true;
     }
 };
 
-// Cerrar al hacer click fuera
-if (typeof window !== "undefined") {
-    document.addEventListener("click", (e) => {
-        if (!e.target.closest(".search-box")) {
-            closeResults();
-        }
-    });
-}
+const clearAndClose = () => {
+    clearSearch();
+    closeResults();
+};
+
+// keep local synced if lastSearch exists
+watch(searchQuery, (val) => {
+    searchQueryLocal.value = val;
+});
 </script>
 
 <style scoped>
 .search-box {
-    min-width: 200px;
-    max-width: 100%;
+    max-width: 400px;
 }
 
-@media (min-width: 992px) {
+/* Ensure the results card overlays correctly */
+:deep(.search-results) {
+    width: 100%;
+}
+
+@media (max-width: 575.98px) {
     .search-box {
-        min-width: 250px;
-        max-width: 400px;
+        max-width: 100%;
     }
-}
-
-.search-box .form-control:focus {
-    box-shadow: none;
-    border-color: var(--border-color, #dee2e6);
-}
-
-.search-box .input-group-text {
-    background-color: var(--card-bg, #ffffff);
-    border-color: var(--border-color, #dee2e6);
-}
-
-.search-box .form-control {
-    background-color: var(--card-bg, #ffffff);
-    border-color: var(--border-color, #dee2e6);
-    color: var(--text-primary, #212121);
 }
 </style>
