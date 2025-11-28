@@ -409,7 +409,54 @@ class PedidoOnlineController extends Controller
                         'pago_facil_status' => $status,
                         'pago_facil_raw_response' => json_encode($request->all()),
                     ]);
+<<<<<<< HEAD
                 }
+=======
+
+<<<<<<< HEAD
+                    foreach ($venta->detalles as $detalle) {
+                        $producto = $detalle->producto;
+                        if (!$producto) {
+                            continue;
+=======
+                        // Actualizar cuota asociada (hacer un update explícito para evitar escribir columnas no existentes)
+                        $cuota = $pago->cuota;
+                        if ($cuota) {
+                            $nuevoMontoPagado = ($cuota->monto_pagado ?? 0) + $pago->monto;
+                            $nuevoEstado = $cuota->estado;
+                            if ($nuevoMontoPagado >= ($cuota->monto ?? 0)) {
+                                $nuevoEstado = 'pagada';
+                            }
+
+                            DB::table('cuotas')->where('id', $cuota->id)->update([
+                                'monto_pagado' => $nuevoMontoPagado,
+                                'estado' => $nuevoEstado,
+                                'updated_at' => now(),
+                            ]);
+
+                            // Verificar crédito
+                            $credito = $cuota->credito;
+                            if ($credito) {
+                                $todasPagadas = $credito->cuotas()->where('estado', '!=', 'pagado')->count() === 0;
+                                if ($todasPagadas) {
+                                    $credito->update(['estado' => 'pagado']);
+                                }
+                            }
+>>>>>>> a71c191 (mora e interes en los creditos funcionando)
+                        }
+
+                        $producto->decrement('stock_actual', $detalle->cantidad);
+
+                        KardexInventario::create([
+                            'producto_id' => $producto->id,
+                            'tipo' => 'salida',
+                            'cantidad' => $detalle->cantidad,
+                            'referencia' => "Venta Online {$venta->numero_venta}",
+                            'observaciones' => 'Pago confirmado vía callback PagoFácil',
+                        ]);
+                    }
+                });
+>>>>>>> limber
             } else {
                 // Procesar pago (cuota)
                 if ($status === 'completed' && $pago->pago_facil_status !== 'completed') {

@@ -142,6 +142,19 @@ class PagoCuotaController extends Controller
                     'pago_facil_raw_response' => json_encode($request->all())
                 ]);
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                // Actualizar cuota
+                $cuota = $pago->cuotaCredito;
+                $cuota->monto_pagado += $pago->monto;
+                
+                // Si la cuota está completamente pagada, marcarla como pagada
+                if ($cuota->monto_pagado >= $cuota->monto_cuota) {
+                    $cuota->estado = 'pagado';
+                    $cuota->fecha_pago = now();
+=======
+>>>>>>> limber
                 // Actualizar cuota (actualizar columnas específicas para evitar escribir columnas inexistentes)
                 $cuota = $pago->cuota;
                 if ($cuota) {
@@ -156,6 +169,10 @@ class PagoCuotaController extends Controller
                         'estado' => $nuevoEstado,
                         'updated_at' => now(),
                     ]);
+<<<<<<< HEAD
+=======
+>>>>>>> a71c191 (mora e interes en los creditos funcionando)
+>>>>>>> limber
                 }
 
                 // Verificar si todas las cuotas del crédito están pagadas
