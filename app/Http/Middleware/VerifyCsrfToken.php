@@ -12,6 +12,10 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // Excluir callbacks públicos de PagoFácil y endpoints de simulación
+        'pagofacil/callback',
+        'webhook/pagofacil-simulado/*',
+        'pagofacil-simulado/*',
+        'notificacionesPagoFacil',
     ];
 }

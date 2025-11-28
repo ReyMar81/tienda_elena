@@ -283,17 +283,32 @@ class PedidoOnlineController extends Controller
         $pedidoId = $request->input('PedidoID');
         $estado = strtolower($request->input('Estado', 'pending'));
 
-        $venta = Venta::query()
-            ->when($pagofacilTransactionId, function ($q) use ($pagofacilTransactionId) {
-                $q->orWhere('pago_facil_transaction_id', $pagofacilTransactionId);
-            })
-            ->when($companyTransactionId, function ($q) use ($companyTransactionId) {
-                $q->orWhere('pago_facil_payment_number', $companyTransactionId);
-            })
-            ->when($pedidoId, function ($q) use ($pedidoId) {
-                $q->orWhere('numero_venta', $pedidoId)->orWhere('id', $pedidoId);
-            })
-            ->first();
+        // Construir la consulta de forma segura: evitar comparar "id" con valores no numéricos
+        $query = Venta::query();
+
+        if ($pagofacilTransactionId) {
+            $query->orWhere('pago_facil_transaction_id', $pagofacilTransactionId);
+        }
+
+        if ($companyTransactionId) {
+            $query->orWhere('pago_facil_payment_number', $companyTransactionId);
+        }
+
+        if ($pedidoId) {
+            // Buscar por numero_venta siempre
+            $query->orWhere('numero_venta', $pedidoId);
+
+            // Muchas integraciones envían el PedidoID como el payment_number (ej. VENTA-24-1764...)
+            // Buscar también en la columna 'pago_facil_payment_number' para cubrir ese caso
+            $query->orWhere('pago_facil_payment_number', $pedidoId);
+
+            // Sólo comparar con 'id' si el valor es numérico
+            if (is_numeric($pedidoId)) {
+                $query->orWhere('id', (int) $pedidoId);
+            }
+        }
+
+        $venta = $query->first();
 
         if (!$venta) {
             Log::warning('⚠️ [PagoFácil] Venta no encontrada para callback', [
@@ -370,10 +385,27 @@ class PedidoOnlineController extends Controller
 
     private function mapearEstadoCallback(string $estado): string
     {
-        $normalized = strtolower(trim($estado));
+        $trimmed = trim($estado);
+
+        // Si el callback envía un código numérico (p. ej. 2 = pagado)
+        if (is_numeric($trimmed)) {
+            $code = (int) $trimmed;
+            // Mapear códigos numéricos comunes a estados
+            $map = [
+                0 => 'pending',
+                1 => 'pending',
+                2 => 'completed', // Pago realizado
+                3 => 'cancelled',
+                4 => 'expired',
+            ];
+
+            return $map[$code] ?? 'pending';
+        }
+
+        $normalized = strtolower($trimmed);
 
         $completed = ['completed', 'complete', 'success', 'successful', 'paid', 'pagado', 'aprobado'];
-        $cancelled = ['cancelled', 'canceled', 'rechazado', 'denied', 'failed', 'error'];
+        $cancelled = ['cancelled', 'canceled', 'rechazado', 'denied', 'failed', 'error', 'rechazado'];
         $expired = ['expired', 'expirado', 'timeout', 'timeout_interrupted'];
 
         if (in_array($normalized, $completed, true)) {
@@ -436,12 +468,29 @@ class PedidoOnlineController extends Controller
     private function generarNumeroVenta()
     {
         $fecha = now()->format('Ymd');
-        $ultimaVenta = Venta::whereDate('created_at', today())
-            ->orderBy('id', 'desc')
-            ->first();
 
-        $secuencia = $ultimaVenta ? intval(substr($ultimaVenta->numero_venta, -4)) + 1 : 1;
-        
+        // Para evitar condiciones de carrera al generar el número de venta,
+        // bloqueamos la tabla ventas dentro de la transacción activa.
+        // Esto garantiza que dos procesos concurrentes no reciban la misma secuencia.
+        try {
+            DB::statement('LOCK TABLE ventas IN EXCLUSIVE MODE');
+        } catch (\Exception $e) {
+            // Si el motor no soporta el lock o falla, seguimos sin bloqueo (fall-back).
+            Log::warning('No se pudo bloquear la tabla ventas al generar número de venta: ' . $e->getMessage());
+        }
+
+        // Obtener la máxima secuencia usada hoy. Usar split_part para soportar
+        // secuencias de más de 4 dígitos (ej. 10000) y evitar errores cuando
+        // los sufijos superan 9999.
+        // Evitar errores al castear cadenas vacías: usar NULLIF para convertir '' a NULL
+        // y luego castear con ::integer. MAX ignorará los NULLs.
+        $maxSeq = DB::table('ventas')
+            ->whereDate('created_at', today())
+            ->selectRaw("MAX(NULLIF(split_part(numero_venta, '-', 3), '')::INTEGER) as max_seq")
+            ->value('max_seq');
+
+        $secuencia = ($maxSeq ? (int) $maxSeq : 0) + 1;
+
         return sprintf('VE-%s-%04d', $fecha, $secuencia);
     }
 }
