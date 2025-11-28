@@ -8,7 +8,9 @@ const props = defineProps({
 });
 
 const classes = computed(() => {
-    return props.active ? "nav-link active" : "nav-link";
+    return props.active 
+        ? "nav-link active text-primary fw-bold border-bottom border-primary border-2" 
+        : "nav-link text-secondary";
 });
 </script>
 

@@ -1,6 +1,6 @@
 <template>
-    <div class="search-box position-relative" style="min-width: 300px">
-        <div class="input-group">
+    <div class="search-box position-relative w-100">
+        <div class="input-group input-group-sm">
             <span class="input-group-text bg-white border-end-0">
                 <i class="bi bi-search"></i>
             </span>
@@ -98,6 +98,18 @@ if (typeof window !== "undefined") {
 </script>
 
 <style scoped>
+.search-box {
+    min-width: 200px;
+    max-width: 100%;
+}
+
+@media (min-width: 992px) {
+    .search-box {
+        min-width: 250px;
+        max-width: 400px;
+    }
+}
+
 .search-box .form-control:focus {
     box-shadow: none;
     border-color: var(--border-color, #dee2e6);

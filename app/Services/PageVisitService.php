@@ -68,6 +68,9 @@ class PageVisitService
             'pagos',
             'reportes',
             'productos',
+            'categorias',
+            'promociones',
+            'pedidos',
             'carrito',
             'mis-creditos',
             'usuarios'

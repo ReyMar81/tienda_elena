@@ -17,6 +17,7 @@ const props = defineProps({
 });
 
 let open = ref(false);
+const root = ref(null);
 
 const closeOnEscape = (e) => {
     if (open.value && e.key === "Escape") {
@@ -24,8 +25,21 @@ const closeOnEscape = (e) => {
     }
 };
 
-onMounted(() => document.addEventListener("keydown", closeOnEscape));
-onUnmounted(() => document.removeEventListener("keydown", closeOnEscape));
+const closeOnClickOutside = (e) => {
+    if (open.value && root.value && !root.value.contains(e.target)) {
+        open.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("click", closeOnClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keydown", closeOnEscape);
+    document.removeEventListener("click", closeOnClickOutside);
+});
 
 const widthClass = computed(() => {
     return {
@@ -47,8 +61,8 @@ const alignmentClasses = computed(() => {
 </script>
 
 <template>
-    <div class="dropdown">
-        <div @click="open = !open">
+    <div class="dropdown position-static" ref="root">
+        <div @click="open = !open" class="d-inline-block">
             <slot name="trigger" />
         </div>
 
@@ -56,6 +70,7 @@ const alignmentClasses = computed(() => {
             class="dropdown-menu"
             :class="[alignmentClasses, { show: open }]"
             @click="open = false"
+            style="z-index: 1050;"
         >
             <slot name="content" />
         </ul>

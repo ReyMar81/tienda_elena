@@ -98,6 +98,18 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            // Contador de visitas de página
+            'pageVisits' => function () use ($request) {
+                $ruta = $request->path();
+                $visitaActual = \App\Models\PageVisit::where('ruta', $ruta)->first();
+                $totalVisitas = \App\Models\PageVisit::sum('contador');
+                
+                return [
+                    'current' => $visitaActual ? $visitaActual->contador : 0,
+                    'total' => $totalVisitas,
+                    'route' => $ruta,
+                ];
+            },
         ]);
     }
 }

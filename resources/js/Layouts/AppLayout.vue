@@ -9,7 +9,6 @@ import NavLink from "@/Components/NavLink.vue";
 import NavDropdown from "@/Components/Navigation/NavDropdown.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import SearchBox from "@/Components/SearchBox.vue";
-import CartDropdown from "@/Components/Cart/CartDropdown.vue";
 import { useTheme } from "@/composables/useTheme";
 
 defineProps({
@@ -43,7 +42,7 @@ const {
 
 const switchToTeam = (team) => {
     router.put(
-        route("current-team.update"),
+        router("current-team.update"),
         {
             team_id: team.id,
         },
@@ -54,32 +53,32 @@ const switchToTeam = (team) => {
 };
 
 const logout = () => {
-    router.post(route("logout"));
+    router.post(router("logout"));
 };
 </script>
 
 <template>
-    <div>
+    <div class="min-vh-100 d-flex flex-column">
         <Head :title="title" />
 
         <Banner />
 
-        <div class="min-h-100vh bg-light">
+        <div class="d-flex flex-column flex-grow-1 bg-light">
             <nav
-                class="navbar navbar-expand-sm navbar-light bg-white border-bottom"
+                class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm flex-shrink-0 position-relative"
             >
-                <div class="container-fluid">
+                <div class="container-fluid px-3 px-md-4 position-static">
                     <!-- Logo -->
-                    <Link :href="route('dashboard')" class="navbar-brand">
+                    <Link :href="route('dashboard')" class="navbar-brand me-3 me-md-4">
                         <ApplicationLogo
                             class="d-inline-block"
-                            style="height: 2.25rem"
+                            style="height: 2.5rem"
                         />
                     </Link>
 
                     <!-- Navigation Links (Desktop) -->
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav me-auto">
+                    <div class="collapse navbar-collapse position-static" id="navbarNav">
+                        <ul class="navbar-nav flex-wrap align-items-center w-100 position-static">
                             <template v-for="item in menuItems" :key="item.id">
                                 <!-- Menú con submenús (dropdown) -->
                                 <NavDropdown
@@ -103,23 +102,18 @@ const logout = () => {
                                     </NavLink>
                                 </li>
                             </template>
-                        </ul>
 
-                        <!-- Search Box (Desktop) -->
-                        <div class="d-none d-md-block mx-3">
-                            <SearchBox />
-                        </div>
+                            <!-- Espaciador para empujar elementos a la derecha -->
+                            <li class="nav-item ms-auto d-none d-sm-block"></li>
 
-                        <!-- Cart Dropdown (Desktop) -->
-                        <div class="d-none d-md-block me-2">
-                            <CartDropdown />
-                        </div>
+                            <!-- Search Box (Desktop) -->
+                            <li class="nav-item d-none d-lg-flex align-items-center me-2 flex-shrink-0" style="flex: 0 1 auto; max-width: 400px;">
+                                <SearchBox />
+                            </li>
 
-                        <!-- Right Side -->
-                        <ul class="navbar-nav ms-auto">
                             <!-- Teams Dropdown -->
                             <li
-                                class="nav-item"
+                                class="nav-item flex-shrink-0 position-static"
                                 v-if="$page.props.jetstream.hasTeamFeatures"
                             >
                                 <Dropdown align="right" width="60">
@@ -214,90 +208,15 @@ const logout = () => {
                             </li>
 
                             <!-- Settings Dropdown -->
-                            <li class="nav-item">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <button
-                                            v-if="
-                                                $page.props.jetstream
-                                                    .managesProfilePhotos
-                                            "
-                                            class="btn btn-link p-0"
-                                        >
-                                            <img
-                                                class="rounded-circle"
-                                                style="
-                                                    width: 2rem;
-                                                    height: 2rem;
-                                                    object-fit: cover;
-                                                "
-                                                :src="
-                                                    $page.props.auth.user
-                                                        .profile_photo_url
-                                                "
-                                                :alt="
-                                                    $page.props.auth.user.name
-                                                "
-                                            />
-                                        </button>
-
-                                        <button
-                                            v-else
-                                            type="button"
-                                            class="btn btn-link nav-link dropdown-toggle"
-                                        >
-                                            {{ $page.props.auth.user.name }}
-                                        </button>
-                                    </template>
-
-                                    <template #content>
-                                        <li>
-                                            <h6 class="dropdown-header">
-                                                Gestionar Cuenta
-                                            </h6>
-                                        </li>
-
-                                        <DropdownLink
-                                            :href="route('profile.show')"
-                                        >
-                                            Perfil
-                                        </DropdownLink>
-
-                                        <DropdownLink
-                                            v-if="
-                                                $page.props.jetstream
-                                                    .hasApiFeatures
-                                            "
-                                            :href="route('api-tokens.index')"
-                                        >
-                                            Tokens API
-                                        </DropdownLink>
-
-                                        <li><hr class="dropdown-divider" /></li>
-
-                                        <li>
-                                            <form @submit.prevent="logout">
-                                                <DropdownLink as="button">
-                                                    Cerrar Sesión
-                                                </DropdownLink>
-                                            </form>
-                                        </li>
-                                    </template>
-                                </Dropdown>
-                            </li>
-
-                            <!-- Accesibilidad Dropdown -->
-                            <li class="nav-item">
+                            <li class="nav-item flex-shrink-0 position-static">
                                 <Dropdown align="right" width="60">
                                     <template #trigger>
                                         <button
                                             type="button"
-                                            class="btn btn-link nav-link"
+                                            class="btn btn-link nav-link d-flex align-items-center"
                                             title="Accesibilidad"
                                         >
-                                            <i
-                                                class="bi bi-universal-access"
-                                            ></i>
+                                            <i class="bi bi-sliders fs-5"></i>
                                         </button>
                                     </template>
 
@@ -456,12 +375,82 @@ const logout = () => {
                                     </template>
                                 </Dropdown>
                             </li>
+
+                            <!-- Accesibilidad Dropdown -->
+                            <li class="nav-item flex-shrink-0 position-static">
+                                <Dropdown align="right" width="48">
+                                    <template #trigger>
+                                        <button
+                                            v-if="
+                                                $page.props.jetstream
+                                                    .managesProfilePhotos
+                                            "
+                                            class="btn btn-link p-0 d-flex align-items-center"
+                                        >
+                                            <img
+                                                class="rounded-circle border border-2"
+                                                style="
+                                                    width: 2.5rem;
+                                                    height: 2.5rem;
+                                                    object-fit: cover;
+                                                "
+                                                :src="
+                                                    $page.props.auth.user
+                                                        .profile_photo_url
+                                                "
+                                                :alt="
+                                                    $page.props.auth.user.name
+                                                "
+                                            />
+                                        </button>
+
+                                        <button
+                                            v-else
+                                            type="button"
+                                            class="btn btn-link nav-link dropdown-toggle d-flex align-items-center"
+                                        >
+                                            <i class="bi bi-person-circle me-1 fs-5"></i>
+                                            {{ $page.props.auth.user.name }}
+                                        </button>
+                                    </template>
+
+                                    <template #content>
+                                        <DropdownLink
+                                            :href="route('profile.show')"
+                                        >
+                                            Perfil
+                                        </DropdownLink>
+
+                                        <DropdownLink
+                                            v-if="
+                                                $page.props.jetstream
+                                                    .hasApiFeatures
+                                            "
+                                            :href="route('api-tokens.index')"
+                                        >
+                                            Tokens API
+                                        </DropdownLink>
+
+                                        <li><hr class="dropdown-divider" /></li>
+
+                                        <li>
+                                            <form @submit.prevent="logout">
+                                                <DropdownLink as="button">
+                                                    Cerrar Sesión
+                                                </DropdownLink>
+                                            </form>
+                                        </li>
+                                    </template>
+                                </Dropdown>
+                            </li>
+
+
                         </ul>
                     </div>
 
                     <!-- Hamburger (Mobile) -->
                     <button
-                        class="navbar-toggler"
+                        class="navbar-toggler ms-2 flex-shrink-0"
                         type="button"
                         @click="
                             showingNavigationDropdown =
@@ -478,7 +467,7 @@ const logout = () => {
                         'd-block': showingNavigationDropdown,
                         'd-none': !showingNavigationDropdown,
                     }"
-                    class="d-sm-none"
+                    class="d-sm-none border-top"
                 >
                     <div class="mt-2">
                         <template v-for="item in menuItems" :key="item.id">
@@ -663,21 +652,176 @@ const logout = () => {
                                 </template>
                             </template>
                         </div>
+
+                        <!-- Opciones de Accesibilidad (Móvil) -->
+                        <div class="border-top mt-2"></div>
+                        <div class="px-3 py-2 small text-muted">
+                            Accesibilidad
+                        </div>
+
+                        <div class="px-3 pb-3">
+                            <!-- Tema -->
+                            <div class="mb-2">
+                                <small class="d-block text-muted mb-1">Tema Visual</small>
+                                <div class="btn-group w-100 btn-group-sm">
+                                    <button class="btn btn-outline-secondary" :class="{ active: theme === 'ninos' }" @click="setTheme('ninos')">🎨</button>
+                                    <button class="btn btn-outline-secondary" :class="{ active: theme === 'jovenes' }" @click="setTheme('jovenes')">🚀</button>
+                                    <button class="btn btn-outline-secondary" :class="{ active: theme === 'adultos' }" @click="setTheme('adultos')">💼</button>
+                                </div>
+                            </div>
+
+                            <!-- Modo -->
+                            <div class="mb-2">
+                                <small class="d-block text-muted mb-1">Modo</small>
+                                <div class="btn-group w-100 btn-group-sm">
+                                    <button class="btn btn-outline-secondary" :class="{ active: mode === 'auto' }" @click="setMode('auto')">🔄</button>
+                                    <button class="btn btn-outline-secondary" :class="{ active: mode === 'dia' }" @click="setMode('dia')">☀️</button>
+                                    <button class="btn btn-outline-secondary" :class="{ active: mode === 'noche' }" @click="setMode('noche')">🌙</button>
+                                </div>
+                            </div>
+
+                            <!-- Fuente -->
+                            <div>
+                                <small class="d-block text-muted mb-1">Fuente</small>
+                                <div class="btn-group w-100 btn-group-sm">
+                                    <button class="btn btn-outline-secondary" :class="{ active: fontSize === 'small' }" @click="setFontSize('small')">A-</button>
+                                    <button class="btn btn-outline-secondary" :class="{ active: fontSize === 'normal' }" @click="setFontSize('normal')">A</button>
+                                    <button class="btn btn-outline-secondary" :class="{ active: fontSize === 'large' }" @click="setFontSize('large')">A+</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>
 
             <!-- Page Heading -->
-            <header v-if="$slots.header" class="bg-white shadow-sm">
-                <div class="container py-3">
+            <header v-if="$slots.header" class="bg-white shadow-sm border-bottom flex-shrink-0">
+                <div class="container-fluid px-3 px-md-4 py-3">
                     <slot name="header" />
                 </div>
             </header>
 
             <!-- Page Content -->
-            <main class="py-4">
+            <main class="flex-grow-1 py-3 py-md-4 overflow-auto">
                 <slot />
             </main>
+
+            <!-- Footer con contador de visitas -->
+            <footer class="mt-auto py-3 py-md-4 bg-white border-top shadow-sm flex-shrink-0">
+                <div class="container-fluid px-3 px-md-4">
+                    <div class="row align-items-center g-2">
+                        <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                            <small class="text-muted">
+                                <i class="bi bi-eye me-1"></i>
+                                Visitas a esta página: 
+                                <strong>{{ $page.props.pageVisits?.current?.toLocaleString() || 0 }}</strong>
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <small class="text-muted">
+                                <i class="bi bi-globe me-1"></i>
+                                Visitas totales al sitio: 
+                                <strong>{{ $page.props.pageVisits?.total?.toLocaleString() || 0 }}</strong>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Asegurar que el layout no cause overflow horizontal */
+.navbar {
+    max-width: 100%;
+    overflow: visible !important;
+}
+
+.navbar-collapse {
+    max-width: 100%;
+    overflow: visible !important;
+}
+
+.navbar-nav {
+    max-width: 100%;
+    overflow: visible !important;
+}
+
+/* Los dropdowns deben salir del contenedor del navbar */
+:deep(.dropdown) {
+    position: static !important;
+}
+
+:deep(.dropdown-menu) {
+    position: absolute !important;
+    z-index: 1050;
+    max-width: 90vw;
+    margin-top: 0.5rem;
+}
+
+/* Mejorar responsividad del menú móvil */
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+}
+
+/* Prevenir desbordamiento en pantallas pequeñas */
+.nav-item {
+    white-space: nowrap;
+}
+
+/* Asegurar que los dropdowns no causen overflow */
+.dropdown-menu {
+    max-width: 90vw;
+}
+
+/* Ajustar el contenedor principal */
+.min-vh-100 {
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Mejorar el comportamiento del main */
+main {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Espaciado proporcional según el boceto */
+.navbar-brand {
+    min-width: 150px;
+}
+
+/* Logo debe tener espacio fijo */
+@media (min-width: 576px) {
+    .navbar-brand {
+        width: 200px;
+        flex-shrink: 0;
+    }
+}
+
+/* El área de menús debe tener espacio flexible */
+.navbar-collapse {
+    flex-grow: 1;
+}
+
+/* Elementos de la derecha (perfil, accesibilidad) con espacio fijo */
+.nav-item.position-static {
+    flex-shrink: 0;
+}
+
+/* El buscador debe tener ancho máximo */
+:deep(.search-box) {
+    max-width: 400px;
+}
+
+@media (min-width: 992px) {
+    :deep(.search-box) {
+        min-width: 250px;
+    }
+}
+</style>
