@@ -109,6 +109,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Compatibilidad: algunos controladores usan esAdministrador() para
+     * verificar permisos elevados. Interpretamos "administrador" como
+     * cualquier usuario con rol Propietario o Vendedor.
+     */
+    public function esAdministrador()
+    {
+        return $this->esPropietario() || $this->esVendedor();
+    }
+
+    /**
      * Mutators para formateo automático
      */
     protected function nombre(): Attribute

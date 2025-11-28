@@ -82,6 +82,14 @@ Route::middleware([
         Route::delete('/{id}', [CartController::class, 'remove'])->name('remove');
         Route::delete('/', [CartController::class, 'clear'])->name('clear');
         Route::post('/sync', [CartController::class, 'sync'])->name('sync');
+        // Pagos QR para cuotas de créditos - permitir Cliente, Propietario y Vendedor
+        Route::post('/cuotas/{id}/generar-qr', [PagoCuotaController::class, 'generarQRCuota'])
+            ->middleware('role:Cliente,Propietario,Vendedor')
+            ->name('cuotas.generar-qr');
+        Route::get('/pagos/{id}/estado', [PagoCuotaController::class, 'verificarEstadoPago'])
+            ->middleware('role:Cliente,Propietario,Vendedor')
+            ->name('pagos.verificar-estado');
+
     });
 
     // Página del carrito
@@ -208,9 +216,7 @@ Route::middleware([
         // Pedidos Online - Cliente crea pedido desde carrito
         Route::post('/carrito/realizar-pedido', [PedidoOnlineController::class, 'realizarPedido'])->name('carrito.realizar-pedido');
         
-        // Pagos QR para cuotas de créditos
-        Route::post('/cuotas/{id}/generar-qr', [PagoCuotaController::class, 'generarQRCuota'])->name('cuotas.generar-qr');
-        Route::get('/pagos/{id}/estado', [PagoCuotaController::class, 'verificarEstadoPago'])->name('pagos.verificar-estado');
+        // Pagos QR para cuotas de créditos (definidas abajo con middleware ampliado)
     });
 });
 

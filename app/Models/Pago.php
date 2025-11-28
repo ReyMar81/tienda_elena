@@ -41,7 +41,10 @@ class Pago extends Model
 
     public function cuotaCredito()
     {
-        return $this->belongsTo(CuotaCredito::class, 'cuota_credito_id');
+        // Backwards-compatible accessor: some controllers/models referenced
+        // `cuotaCredito`. Map it to the existing `Cuota` model using the
+        // `cuota_id` foreign key so older code keeps working.
+        return $this->belongsTo(Cuota::class, 'cuota_id');
     }
 
     public function metodoPago()

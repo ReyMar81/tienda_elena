@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CuotaCredito;
+use App\Models\Cuota;
 use App\Models\Pago;
 use App\Models\MetodoPago;
 use App\Services\PagoFacilService;
@@ -30,7 +30,7 @@ class PagoCuotaController extends Controller
         ]);
 
         try {
-            $cuota = CuotaCredito::with('credito.venta')->findOrFail($cuotaId);
+            $cuota = Cuota::with('credito.venta')->findOrFail($cuotaId);
             
             // Validar que la cuota pertenezca al usuario autenticado
             if ($cuota->credito->venta->user_id !== auth()->id() && !auth()->user()->esAdministrador()) {
@@ -38,7 +38,8 @@ class PagoCuotaController extends Controller
             }
 
             // Validar que el monto no exceda lo pendiente
-            $montoPendiente = $cuota->monto_cuota - $cuota->monto_pagado;
+            // El modelo `Cuota` usa campos `monto` y `monto_pendiente`.
+            $montoPendiente = $cuota->monto_pendiente ?? ($cuota->monto - $cuota->monto_pagado);
             if ($request->monto > $montoPendiente) {
                 return response()->json([
                     'error' => 'El monto excede lo pendiente de la cuota',
@@ -55,10 +56,12 @@ class PagoCuotaController extends Controller
             }
 
             // Crear registro de pago en estado pendiente
+            // Asegurarse de incluir la fecha, la columna es NOT NULL en la BD
             $pago = Pago::create([
-                'cuota_credito_id' => $cuota->id,
+                'cuota_id' => $cuota->id,
                 'monto' => $request->monto,
                 'metodo_pago_id' => $metodoPagoQR->id,
+                'fecha' => now(),
                 'pago_facil_status' => 'pending'
             ]);
 
@@ -139,17 +142,21 @@ class PagoCuotaController extends Controller
                     'pago_facil_raw_response' => json_encode($request->all())
                 ]);
 
-                // Actualizar cuota
-                $cuota = $pago->cuotaCredito;
-                $cuota->monto_pagado += $pago->monto;
-                
-                // Si la cuota está completamente pagada, marcarla como pagada
-                if ($cuota->monto_pagado >= $cuota->monto_cuota) {
-                    $cuota->estado = 'pagado';
-                    $cuota->fecha_pago = now();
+                // Actualizar cuota (actualizar columnas específicas para evitar escribir columnas inexistentes)
+                $cuota = $pago->cuota;
+                if ($cuota) {
+                    $nuevoMontoPagado = ($cuota->monto_pagado ?? 0) + $pago->monto;
+                    $nuevoEstado = $cuota->estado;
+                    if ($nuevoMontoPagado >= ($cuota->monto ?? 0)) {
+                        $nuevoEstado = 'pagado';
+                    }
+
+                    DB::table('cuotas')->where('id', $cuota->id)->update([
+                        'monto_pagado' => $nuevoMontoPagado,
+                        'estado' => $nuevoEstado,
+                        'updated_at' => now(),
+                    ]);
                 }
-                
-                $cuota->save();
 
                 // Verificar si todas las cuotas del crédito están pagadas
                 $credito = $cuota->credito;
@@ -219,7 +226,6 @@ class PagoCuotaController extends Controller
         $webhookData = [
             'transaction_id' => $transactionId,
             'status' => 'completed',
-            'fecha_pago' => now()->toIso8601String(),
             'monto' => $request->input('monto', 0),
             'simulated' => true
         ];
@@ -238,7 +244,7 @@ class PagoCuotaController extends Controller
             $pago = Pago::findOrFail($pagoId);
 
             // Validar que pertenezca al usuario autenticado
-            if ($pago->cuotaCredito->credito->venta->user_id !== auth()->id() && !auth()->user()->esAdministrador()) {
+            if ($pago->cuota && $pago->cuota->credito->venta->user_id !== auth()->id() && !auth()->user()->esAdministrador()) {
                 return response()->json(['error' => 'No autorizado'], 403);
             }
 
