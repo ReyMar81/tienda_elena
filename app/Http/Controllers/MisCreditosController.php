@@ -113,7 +113,7 @@ class MisCreditosController extends Controller
             $cuota->monto_pagado += $request->monto;
             $cuota->monto_pendiente -= $request->monto;
             if ($cuota->monto_pendiente <= 0.01) {
-                $cuota->estado = 'pagado';
+                $cuota->estado = 'pagada';
                 $cuota->monto_pendiente = 0;
             }
             $cuota->save();

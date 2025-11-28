@@ -30,6 +30,8 @@ class StorePedidoRequest extends FormRequest
             'detalles.*.cantidad' => 'required|integer|min:1',
             'confirmar_inmediatamente' => 'boolean',
             'numero_cuotas' => 'required_if:confirmar_inmediatamente,true|nullable|integer|min:1|max:12',
+            'tasa_interes' => 'nullable|numeric|min:0|max:100',
+            'descuento_percent' => 'nullable|numeric|min:0|max:100',
             'observaciones' => 'nullable|string|max:500',
         ];
     }
@@ -48,6 +50,12 @@ class StorePedidoRequest extends FormRequest
             'numero_cuotas.required_if' => 'Debe especificar el número de cuotas para pagos a crédito',
             'numero_cuotas.min' => 'El número de cuotas debe ser al menos 1',
             'numero_cuotas.max' => 'El número de cuotas no puede ser mayor a 12',
+            'tasa_interes.numeric' => 'El valor de la tasa de interés debe ser numérico',
+            'tasa_interes.min' => 'La tasa de interés no puede ser negativa',
+            'tasa_interes.max' => 'La tasa de interés no puede ser mayor al 100%',
+            'descuento_percent.numeric' => 'El descuento debe ser un número válido',
+            'descuento_percent.min' => 'El descuento no puede ser negativo',
+            'descuento_percent.max' => 'El descuento no puede ser mayor al 100%'
         ];
     }
 }

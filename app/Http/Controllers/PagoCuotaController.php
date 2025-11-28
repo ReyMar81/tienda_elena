@@ -148,7 +148,7 @@ class PagoCuotaController extends Controller
                     $nuevoMontoPagado = ($cuota->monto_pagado ?? 0) + $pago->monto;
                     $nuevoEstado = $cuota->estado;
                     if ($nuevoMontoPagado >= ($cuota->monto ?? 0)) {
-                        $nuevoEstado = 'pagado';
+                        $nuevoEstado = 'pagada';
                     }
 
                     DB::table('cuotas')->where('id', $cuota->id)->update([

@@ -34,6 +34,39 @@
                 >
             </div>
 
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold"
+                        >Tasa de Interés (%)</label
+                    >
+                    <input
+                        v-model.number="tasaInteres"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        class="form-control"
+                    />
+                    <small class="text-muted"
+                        >Porcentaje aplicado al monto total del pedido</small
+                    >
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Descuento (%)</label>
+                    <input
+                        v-model.number="descuentoPercent"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        class="form-control"
+                    />
+                    <small class="text-muted"
+                        >Descuento aplicado al total antes de interés</small
+                    >
+                </div>
+            </div>
+
             <div class="bg-light p-3 rounded">
                 <div class="row">
                     <div class="col-6">
@@ -144,10 +177,17 @@ const confirmar = () => {
         return;
     }
 
-    emit("confirmar", numeroCuotas.value);
+    // Emitir objeto con datos adicionales (tasa de interés y descuento)
+    emit("confirmar", {
+        numero_cuotas: numeroCuotas.value,
+        tasa_interes: parseFloat(tasaInteres.value) || 0,
+        descuento_percent: parseFloat(descuentoPercent.value) || 0,
+    });
     closeModal();
 };
 
-// Calcular inicial
+// Inicializar valores
 calcularMontoCuota();
+const tasaInteres = ref(0);
+const descuentoPercent = ref(0);
 </script>

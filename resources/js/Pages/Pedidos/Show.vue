@@ -68,7 +68,7 @@
                                                               pedido.credito.cuotas.filter(
                                                                   (c) =>
                                                                       c.estado ===
-                                                                      "pagado"
+                                                                      "pagada"
                                                               ).length
                                                           }/${
                                                               pedido.credito
@@ -438,7 +438,7 @@
                                 pedido.credito.estado === "pendiente"
                                     ? `Crédito en Curso (${
                                           pedido.credito.cuotas.filter(
-                                              (c) => c.estado === "pagado"
+                                              (c) => c.estado === "pagada"
                                           ).length
                                       }/${
                                           pedido.credito.cuotas.length

@@ -28,10 +28,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Estado</label>
-                            <select
-                                v-model="form.estado"
-                                class="form-select"
-                            >
+                            <select v-model="form.estado" class="form-select">
                                 <option value="">Todos</option>
                                 <option value="pendiente">Pendiente</option>
                                 <option value="pagado">Pagado</option>
@@ -39,10 +36,7 @@
                             </select>
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
-                            <button
-                                type="submit"
-                                class="btn btn-primary me-2"
-                            >
+                            <button type="submit" class="btn btn-primary me-2">
                                 <i class="bi bi-search"></i> Buscar
                             </button>
                             <button
@@ -77,52 +71,91 @@
                             </thead>
                             <tbody>
                                 <tr v-if="creditos.data.length === 0">
-                                    <td colspan="9" class="text-center text-muted py-4">
-                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    <td
+                                        colspan="9"
+                                        class="text-center text-muted py-4"
+                                    >
+                                        <i
+                                            class="bi bi-inbox fs-1 d-block mb-2"
+                                        ></i>
                                         No se encontraron créditos
                                     </td>
                                 </tr>
-                                <tr v-for="credito in creditos.data" :key="credito.id">
+                                <tr
+                                    v-for="credito in creditos.data"
+                                    :key="credito.id"
+                                >
                                     <td>
                                         <strong>#{{ credito.id }}</strong>
                                     </td>
                                     <td>
                                         <Link
-                                            :href="route('ventas.show', credito.venta_id)"
+                                            :href="
+                                                route(
+                                                    'ventas.show',
+                                                    credito.venta_id
+                                                )
+                                            "
                                             class="text-primary"
                                         >
                                             {{ credito.venta?.numero_venta }}
                                         </Link>
                                     </td>
                                     <td class="text-end">
-                                        {{ formatearMoneda(credito.monto_credito) }}
+                                        {{
+                                            formatearMoneda(
+                                                credito.monto_credito
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-info">
-                                            {{ cuotasPagadas(credito) }}/{{ credito.cuotas_total }}
+                                            {{ cuotasPagadas(credito) }}/{{
+                                                credito.cuotas_total
+                                            }}
                                         </span>
                                     </td>
                                     <td class="text-end text-success">
-                                        {{ formatearMoneda(credito.monto_pagado) }}
+                                        {{
+                                            formatearMoneda(
+                                                credito.monto_pagado
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-end text-danger">
-                                        {{ formatearMoneda(credito.monto_pendiente) }}
+                                        {{
+                                            formatearMoneda(
+                                                credito.monto_pendiente
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-center">
-                                        <span v-if="credito.dias_mora > 0" class="badge bg-danger">
+                                        <span
+                                            v-if="credito.dias_mora > 0"
+                                            class="badge bg-danger"
+                                        >
                                             {{ credito.dias_mora }} días
                                         </span>
                                         <span v-else class="text-muted">-</span>
                                     </td>
                                     <td class="text-center">
-                                        <span :class="getEstadoBadge(credito.estado)">
+                                        <span
+                                            :class="
+                                                getEstadoBadge(credito.estado)
+                                            "
+                                        >
                                             {{ credito.estado.toUpperCase() }}
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
                                             <Link
-                                                :href="route('mis-creditos.show', credito.id)"
+                                                :href="
+                                                    route(
+                                                        'mis-creditos.show',
+                                                        credito.id
+                                                    )
+                                                "
                                                 class="btn btn-outline-info"
                                                 title="Ver detalles"
                                             >
@@ -147,7 +180,9 @@
                             <ul class="pagination justify-content-center">
                                 <li
                                     class="page-item"
-                                    :class="{ disabled: !creditos.prev_page_url }"
+                                    :class="{
+                                        disabled: !creditos.prev_page_url,
+                                    }"
                                 >
                                     <Link
                                         class="page-link"
@@ -161,7 +196,9 @@
                                     v-for="page in paginasVisibles"
                                     :key="page"
                                     class="page-item"
-                                    :class="{ active: page === creditos.current_page }"
+                                    :class="{
+                                        active: page === creditos.current_page,
+                                    }"
                                 >
                                     <Link
                                         v-if="page !== '...'"
@@ -175,7 +212,9 @@
                                 </li>
                                 <li
                                     class="page-item"
-                                    :class="{ disabled: !creditos.next_page_url }"
+                                    :class="{
+                                        disabled: !creditos.next_page_url,
+                                    }"
                                 >
                                     <Link
                                         class="page-link"
@@ -192,16 +231,13 @@
             </div>
 
             <!-- Modal de Pago QR -->
-            <div
-                class="modal fade"
-                tabindex="-1"
-                v-if="mostrarModalPago"
-            >
+            <div class="modal fade" tabindex="-1" v-if="mostrarModalPago">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="bi bi-qr-code me-2"></i>Registrar Pago por QR
+                                <i class="bi bi-qr-code me-2"></i>Registrar Pago
+                                por QR
                             </h5>
                             <button
                                 type="button"
@@ -218,31 +254,61 @@
                                         v-if="cuotaSeleccionada"
                                         class="badge bg-info ms-2"
                                     >
-                                        Cuota #{{ cuotaSeleccionada.numero_cuota }}
+                                        Cuota #{{
+                                            cuotaSeleccionada.numero_cuota
+                                        }}
                                     </span>
                                 </h6>
                                 <p>
-                                    <strong>Venta:</strong> {{ creditoSeleccionado.venta?.numero_venta }}<br />
-                                    <strong>Monto Total:</strong> {{ formatearMoneda(creditoSeleccionado.monto_credito) }}<br />
-                                    <strong>Pagado:</strong> {{ formatearMoneda(creditoSeleccionado.monto_pagado) }}<br />
-                                    <strong>Pendiente:</strong> {{ formatearMoneda(creditoSeleccionado.monto_pendiente) }}
+                                    <strong>Venta:</strong>
+                                    {{ creditoSeleccionado.venta?.numero_venta
+                                    }}<br />
+                                    <strong>Monto Total:</strong>
+                                    {{
+                                        formatearMoneda(
+                                            creditoSeleccionado.monto_credito
+                                        )
+                                    }}<br />
+                                    <strong>Pagado:</strong>
+                                    {{
+                                        formatearMoneda(
+                                            creditoSeleccionado.monto_pagado
+                                        )
+                                    }}<br />
+                                    <strong>Pendiente:</strong>
+                                    {{
+                                        formatearMoneda(
+                                            creditoSeleccionado.monto_pendiente
+                                        )
+                                    }}
                                 </p>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Seleccionar Cuota</label>
+                                <label class="form-label"
+                                    >Seleccionar Cuota</label
+                                >
                                 <select
                                     v-model="cuotaSeleccionadaId"
                                     class="form-select"
-                                    @change="seleccionarCuota($event.target.value)"
+                                    @change="
+                                        seleccionarCuota($event.target.value)
+                                    "
                                 >
-                                    <option value="">Seleccione una cuota</option>
+                                    <option value="">
+                                        Seleccione una cuota
+                                    </option>
                                     <option
                                         v-for="cuota in cuotasDisponibles"
                                         :key="cuota.id"
                                         :value="cuota.id"
                                     >
-                                        Cuota #{{ cuota.numero_cuota }} - {{ formatearMoneda(cuota.monto_pendiente) }}
+                                        Cuota #{{ cuota.numero_cuota }} -
+                                        {{
+                                            formatearMoneda(
+                                                cuota.monto_pendiente
+                                            )
+                                        }}
                                     </option>
                                 </select>
                             </div>
@@ -270,7 +336,9 @@
 
                             <div v-if="cargandoPago" class="text-center">
                                 <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
+                                    <span class="visually-hidden"
+                                        >Cargando...</span
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -288,7 +356,8 @@
                                 @click="pagarPorQR"
                                 :disabled="cargandoPago"
                             >
-                                <i class="bi bi-check-circle"></i> Registrar Pago
+                                <i class="bi bi-check-circle"></i> Registrar
+                                Pago
                             </button>
                         </div>
                     </div>
@@ -299,42 +368,99 @@
 
     <!-- Modal de Pago por QR -->
     <template v-if="mostrarModalPago">
-        <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.3)">
+        <div
+            class="modal fade show d-block"
+            tabindex="-1"
+            style="background: rgba(0, 0, 0, 0.3)"
+        >
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title"><i class="bi bi-qr-code me-2"></i>Pagar cuota por QR</h5>
-                        <button type="button" class="btn-close" @click="cerrarModalPago"></button>
+                        <h5 class="modal-title">
+                            <i class="bi bi-qr-code me-2"></i>Pagar cuota por QR
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            @click="cerrarModalPago"
+                        ></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Seleccionar cuota</label>
-                            <select class="form-select" v-model="cuotaSeleccionadaId" @change="seleccionarCuota($event.target.value)">
-                                <option value="">-- Seleccione una cuota --</option>
-                                <option v-for="cuota in cuotasDisponibles" :key="cuota.id" :value="cuota.id">
-                                    Cuota #{{ cuota.numero_cuota }} - Pendiente: {{ formatearMoneda(cuota.monto_pendiente) }}
+                            <select
+                                class="form-select"
+                                v-model="cuotaSeleccionadaId"
+                                @change="seleccionarCuota($event.target.value)"
+                            >
+                                <option value="">
+                                    -- Seleccione una cuota --
+                                </option>
+                                <option
+                                    v-for="cuota in cuotasDisponibles"
+                                    :key="cuota.id"
+                                    :value="cuota.id"
+                                >
+                                    Cuota #{{ cuota.numero_cuota }} - Pendiente:
+                                    {{ formatearMoneda(cuota.monto_pendiente) }}
                                 </option>
                             </select>
                         </div>
                         <div v-if="cuotaSeleccionada">
                             <div class="mb-3">
                                 <label class="form-label">Monto a pagar</label>
-                                <input type="number" class="form-control" v-model="montoPago" :max="cuotaSeleccionada.monto_pendiente" min="0.01" step="0.01" />
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    v-model="montoPago"
+                                    :max="cuotaSeleccionada.monto_pendiente"
+                                    min="0.01"
+                                    step="0.01"
+                                />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Fecha de pago</label>
-                                <input type="date" class="form-control" v-model="fechaPago" />
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    v-model="fechaPago"
+                                />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Método de pago</label>
-                                <input type="text" class="form-control" value="QR" disabled />
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    value="QR"
+                                    disabled
+                                />
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModalPago" :disabled="cargandoPago">Cancelar</button>
-                        <button type="button" class="btn btn-success" :disabled="!cuotaSeleccionada || !montoPago || montoPago < 0.01 || cargandoPago" @click="pagarPorQR">
-                            <span v-if="cargandoPago" class="spinner-border spinner-border-sm me-2"></span>
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            @click="cerrarModalPago"
+                            :disabled="cargandoPago"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-success"
+                            :disabled="
+                                !cuotaSeleccionada ||
+                                !montoPago ||
+                                montoPago < 0.01 ||
+                                cargandoPago
+                            "
+                            @click="pagarPorQR"
+                        >
+                            <span
+                                v-if="cargandoPago"
+                                class="spinner-border spinner-border-sm me-2"
+                            ></span>
                             <i class="bi bi-qr-code me-2"></i>Pagar por QR
                         </button>
                     </div>
@@ -378,7 +504,7 @@ const getEstadoBadge = (estado) => {
 };
 
 const cuotasPagadas = (credito) => {
-    return credito.cuotas?.filter((c) => c.estado === "pagado").length || 0;
+    return credito.cuotas?.filter((c) => c.estado === "pagada").length || 0;
 };
 
 const filtrar = () => {
@@ -456,30 +582,41 @@ const cerrarModalPago = () => {
 
 const cuotasDisponibles = computed(() => {
     if (!creditoSeleccionado.value) return [];
-    return creditoSeleccionado.value.cuotas?.filter(c => c.estado !== 'pagado') || [];
+    return (
+        creditoSeleccionado.value.cuotas?.filter(
+            (c) => c.estado !== "pagada"
+        ) || []
+    );
 });
 
 const seleccionarCuota = (cuotaId) => {
-    const cuota = cuotasDisponibles.value.find(c => c.id === parseInt(cuotaId));
+    const cuota = cuotasDisponibles.value.find(
+        (c) => c.id === parseInt(cuotaId)
+    );
     cuotaSeleccionada.value = cuota;
     montoPago.value = cuota ? cuota.monto_pendiente : 0;
 };
 
 const pagarPorQR = () => {
-    if (!cuotaSeleccionada.value || !montoPago.value || montoPago.value < 0.01) return;
+    if (!cuotaSeleccionada.value || !montoPago.value || montoPago.value < 0.01)
+        return;
     cargandoPago.value = true;
-    router.post(route('mis-creditos.registrar-pago'), {
-        cuota_id: cuotaSeleccionada.value.id,
-        monto: montoPago.value,
-        fecha: fechaPago.value,
-    }, {
-        preserveScroll: true,
-        onSuccess: () => {
-            cerrarModalPago();
+    router.post(
+        route("mis-creditos.registrar-pago"),
+        {
+            cuota_id: cuotaSeleccionada.value.id,
+            monto: montoPago.value,
+            fecha: fechaPago.value,
         },
-        onFinish: () => {
-            cargandoPago.value = false;
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                cerrarModalPago();
+            },
+            onFinish: () => {
+                cargandoPago.value = false;
+            },
         }
-    });
+    );
 };
 </script>

@@ -12,8 +12,8 @@ const props = defineProps({
 });
 
 // Filtros por defecto si vienen vacíos
-const filtroOrigen = computed(() => props.filtro_origen || 'tienda');
-const filtroEstado = computed(() => props.filtro_estado || 'pendiente');
+const filtroOrigen = computed(() => props.filtro_origen || "tienda");
+const filtroEstado = computed(() => props.filtro_estado || "pendiente");
 
 const formatMoney = (amount) => parseFloat(amount || 0).toFixed(2);
 
@@ -107,7 +107,10 @@ const cerrarModales = () => {
 };
 
 const marcarEnviado = (pedido) => {
-    if (!confirm(`¿Está seguro de marcar el pedido #${pedido.id} como enviado?`)) return;
+    if (
+        !confirm(`¿Está seguro de marcar el pedido #${pedido.id} como enviado?`)
+    )
+        return;
 
     router.patch(
         route("pedidos.marcar-enviado", pedido.id),
@@ -215,46 +218,48 @@ const visiblePages = computed(() => {
                 </div>
                 <div>
                     <ul class="nav nav-pills">
-                                <li class="nav-item">
-                                    <button
-                                        class="nav-link"
-                                        :class="{ active: filtroEstado === 'pendiente' }"
-                                        @click="cambiarFiltroEstado('pendiente')"
-                                    >
-                                        <i class="bi bi-clock-history me-2"></i>
-                                        Pendientes
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button
-                                        class="nav-link"
-                                        :class="{ active: filtroEstado === 'pagado' }"
-                                        @click="cambiarFiltroEstado('pagado')"
-                                    >
-                                        <i class="bi bi-cash-coin me-2"></i>
-                                        Pagados
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button
-                                        class="nav-link"
-                                        :class="{ active: filtroEstado === 'enviado' }"
-                                        @click="cambiarFiltroEstado('enviado')"
-                                    >
-                                        <i class="bi bi-truck me-2"></i>
-                                        Enviados
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button
-                                        class="nav-link"
-                                        :class="{ active: filtroEstado === 'anulado' }"
-                                        @click="cambiarFiltroEstado('anulado')"
-                                    >
-                                        <i class="bi bi-x-circle me-2"></i>
-                                        Anulados
-                                    </button>
-                                </li>
+                        <li class="nav-item">
+                            <button
+                                class="nav-link"
+                                :class="{
+                                    active: filtroEstado === 'pendiente',
+                                }"
+                                @click="cambiarFiltroEstado('pendiente')"
+                            >
+                                <i class="bi bi-clock-history me-2"></i>
+                                Pendientes
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button
+                                class="nav-link"
+                                :class="{ active: filtroEstado === 'pagado' }"
+                                @click="cambiarFiltroEstado('pagado')"
+                            >
+                                <i class="bi bi-cash-coin me-2"></i>
+                                Pagados
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button
+                                class="nav-link"
+                                :class="{ active: filtroEstado === 'enviado' }"
+                                @click="cambiarFiltroEstado('enviado')"
+                            >
+                                <i class="bi bi-truck me-2"></i>
+                                Enviados
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button
+                                class="nav-link"
+                                :class="{ active: filtroEstado === 'anulado' }"
+                                @click="cambiarFiltroEstado('anulado')"
+                            >
+                                <i class="bi bi-x-circle me-2"></i>
+                                Anulados
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -271,7 +276,9 @@ const visiblePages = computed(() => {
                                     <th>Cliente</th>
                                     <th>Método de Pago</th>
                                     <th>Tipo de Pago</th>
-                                    <th v-if="filtroOrigen === 'online'">Dirección de Entrega</th>
+                                    <th v-if="filtroOrigen === 'online'">
+                                        Dirección de Entrega
+                                    </th>
                                     <th>Total</th>
                                     <th>Estado</th>
                                     <th class="text-center">Acciones</th>
@@ -363,21 +370,44 @@ const visiblePages = computed(() => {
                                         <span
                                             class="badge"
                                             :class="
-                                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                                pedido.tipo_pago ===
+                                                    'credito' &&
+                                                pedido.credito &&
+                                                pedido.credito.estado ===
+                                                    'pendiente'
                                                     ? 'bg-warning text-dark'
-                                                    : getBadgeClass(pedido.estado)
+                                                    : getBadgeClass(
+                                                          pedido.estado
+                                                      )
                                             "
                                         >
-                                            {{ 
-                                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
-                                                    ? `Crédito (${pedido.credito.cuotas.filter(c => c.estado === 'pagado').length}/${pedido.credito.cuotas.length})`
-                                                    : pedido.estado 
+                                            {{
+                                                pedido.tipo_pago ===
+                                                    "credito" &&
+                                                pedido.credito &&
+                                                pedido.credito.estado ===
+                                                    "pendiente"
+                                                    ? `Crédito (${
+                                                          pedido.credito.cuotas.filter(
+                                                              (c) =>
+                                                                  c.estado ===
+                                                                  "pagada"
+                                                          ).length
+                                                      }/${
+                                                          pedido.credito.cuotas
+                                                              .length
+                                                      })`
+                                                    : pedido.estado
                                             }}
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         <!-- ACCIONES PARA PEDIDOS DE TIENDA -->
-                                        <div v-if="filtroOrigen === 'tienda'" class="btn-group btn-group-sm" role="group">
+                                        <div
+                                            v-if="filtroOrigen === 'tienda'"
+                                            class="btn-group btn-group-sm"
+                                            role="group"
+                                        >
                                             <Link
                                                 :href="
                                                     route(
@@ -437,7 +467,11 @@ const visiblePages = computed(() => {
                                         </div>
 
                                         <!-- ACCIONES PARA PEDIDOS ONLINE -->
-                                        <div v-else class="btn-group btn-group-sm" role="group">
+                                        <div
+                                            v-else
+                                            class="btn-group btn-group-sm"
+                                            role="group"
+                                        >
                                             <Link
                                                 :href="
                                                     route(
@@ -452,7 +486,10 @@ const visiblePages = computed(() => {
                                             </Link>
 
                                             <button
-                                                v-if="pedido.estado === 'pendiente'"
+                                                v-if="
+                                                    pedido.estado ===
+                                                    'pendiente'
+                                                "
                                                 @click="cancelarPedido(pedido)"
                                                 class="btn btn-outline-danger"
                                                 title="Cancelar pedido"
@@ -462,7 +499,9 @@ const visiblePages = computed(() => {
                                             </button>
 
                                             <button
-                                                v-if="pedido.estado === 'pagado'"
+                                                v-if="
+                                                    pedido.estado === 'pagado'
+                                                "
                                                 @click="marcarEnviado(pedido)"
                                                 class="btn btn-outline-primary"
                                                 title="Marcar como enviado"

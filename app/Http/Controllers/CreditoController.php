@@ -115,7 +115,7 @@ class CreditoController extends Controller
 
             // Si se pagó completamente, cambiar estado
             if ($cuota->monto_pendiente <= 0.01) {
-                $cuota->estado = 'pagado';
+                $cuota->estado = 'pagada';
                 $cuota->monto_pendiente = 0;
             }
             $cuota->save();
