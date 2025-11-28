@@ -73,6 +73,7 @@ class PagoCuotaController extends Controller
             // Actualizar pago con datos del QR
             $pago->update([
                 'pago_facil_transaction_id' => $qrData['transaction_id'],
+                'pago_facil_payment_number' => $qrData['payment_number'] ?? null,
                 'pago_facil_qr_image' => $qrData['qr_image'],
                 'pago_facil_status' => 'pending'
             ]);

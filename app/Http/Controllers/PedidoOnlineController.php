@@ -125,6 +125,7 @@ class PedidoOnlineController extends Controller
             // Actualizar venta con datos del QR
             $venta->update([
                 'pago_facil_transaction_id' => $qrData['transaction_id'],
+                'pago_facil_payment_number' => $qrData['payment_number'] ?? null,
                 'pago_facil_qr_image' => $qrData['qr_image'],
                 'pago_facil_status' => 'pending'
             ]);
@@ -268,6 +269,126 @@ class PedidoOnlineController extends Controller
         // Llamar al webhook simulado
         $webhookRequest = Request::create('/webhook/pagofacil-simulado/venta', 'POST', $webhookData);
         return $this->webhookVentaSimulado($webhookRequest);
+    }
+
+    /**
+     * Callback real de PagoFácil (tcUrlCallBack)
+     */
+    public function pagofacilCallback(Request $request)
+    {
+        Log::info('📬 [PagoFácil] Callback recibido', $request->all());
+
+        $pagofacilTransactionId = $request->input('pagofacilTransactionId');
+        $companyTransactionId = $request->input('companyTransactionId');
+        $pedidoId = $request->input('PedidoID');
+        $estado = strtolower($request->input('Estado', 'pending'));
+
+        $venta = Venta::query()
+            ->when($pagofacilTransactionId, function ($q) use ($pagofacilTransactionId) {
+                $q->orWhere('pago_facil_transaction_id', $pagofacilTransactionId);
+            })
+            ->when($companyTransactionId, function ($q) use ($companyTransactionId) {
+                $q->orWhere('pago_facil_payment_number', $companyTransactionId);
+            })
+            ->when($pedidoId, function ($q) use ($pedidoId) {
+                $q->orWhere('numero_venta', $pedidoId)->orWhere('id', $pedidoId);
+            })
+            ->first();
+
+        if (!$venta) {
+            Log::warning('⚠️ [PagoFácil] Venta no encontrada para callback', [
+                'pagofacilTransactionId' => $pagofacilTransactionId,
+                'companyTransactionId' => $companyTransactionId,
+                'PedidoID' => $pedidoId,
+            ]);
+
+            return response()->json([
+                'error' => 1,
+                'status' => 404,
+                'message' => 'Pedido no encontrado',
+                'values' => false,
+            ], 404);
+        }
+
+        try {
+            $status = $this->mapearEstadoCallback($estado);
+
+            if ($status === 'completed' && $venta->estado !== 'pagado') {
+                DB::transaction(function () use ($venta, $request, $pagofacilTransactionId, $companyTransactionId) {
+                    $venta->update([
+                        'estado' => 'pagado',
+                        'pago_facil_status' => 'completed',
+                        'pago_facil_transaction_id' => $pagofacilTransactionId ?: $venta->pago_facil_transaction_id,
+                        'pago_facil_payment_number' => $companyTransactionId ?: $venta->pago_facil_payment_number,
+                        'pago_facil_raw_response' => json_encode($request->all()),
+                    ]);
+
+                    foreach ($venta->detalles as $detalle) {
+                        $producto = $detalle->producto;
+                        if (!$producto) {
+                            continue;
+                        }
+
+                        $producto->decrement('stock_actual', $detalle->cantidad);
+
+                        KardexInventario::create([
+                            'producto_id' => $producto->id,
+                            'tipo' => 'salida',
+                            'cantidad' => $detalle->cantidad,
+                            'referencia' => "Venta Online {$venta->numero_venta}",
+                            'observaciones' => 'Pago confirmado vía callback PagoFácil',
+                        ]);
+                    }
+                });
+            } else {
+                $venta->update([
+                    'pago_facil_status' => $status,
+                    'pago_facil_raw_response' => json_encode($request->all()),
+                ]);
+            }
+
+            return response()->json([
+                'error' => 0,
+                'status' => 1,
+                'message' => 'Callback procesado correctamente',
+                'values' => true,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ [PagoFácil] Error al procesar callback', [
+                'venta_id' => $venta->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 1,
+                'status' => 500,
+                'message' => 'Error al procesar callback',
+                'values' => false,
+            ], 500);
+        }
+    }
+
+    private function mapearEstadoCallback(string $estado): string
+    {
+        $normalized = strtolower(trim($estado));
+
+        $completed = ['completed', 'complete', 'success', 'successful', 'paid', 'pagado', 'aprobado'];
+        $cancelled = ['cancelled', 'canceled', 'rechazado', 'denied', 'failed', 'error'];
+        $expired = ['expired', 'expirado', 'timeout', 'timeout_interrupted'];
+
+        if (in_array($normalized, $completed, true)) {
+            return 'completed';
+        }
+
+        if (in_array($normalized, $cancelled, true)) {
+            return 'cancelled';
+        }
+
+        if (in_array($normalized, $expired, true)) {
+            return 'expired';
+        }
+
+        return 'pending';
     }
 
     /**

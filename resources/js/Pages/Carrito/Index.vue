@@ -87,13 +87,17 @@
                                             <img
                                                 :src="
                                                     item.producto.imagenes &&
-                                                    item.producto.imagenes.length > 0
+                                                    item.producto.imagenes
+                                                        .length > 0
                                                         ? `/storage/${item.producto.imagenes[0].url}`
                                                         : '/images/no-image.png'
                                                 "
                                                 :alt="item.producto.nombre"
                                                 class="img-fluid rounded"
-                                                style="max-height: 100px; object-fit: cover;"
+                                                style="
+                                                    max-height: 100px;
+                                                    object-fit: cover;
+                                                "
                                             />
                                         </div>
 
@@ -118,28 +122,50 @@
                                                 </span>
                                             </p>
                                             <p class="text-sm text-gray-600">
-                                                Stock: {{ item.producto.stock_actual }}
+                                                Stock:
+                                                {{ item.producto.stock_actual }}
                                             </p>
                                         </div>
 
                                         <!-- Precio y Descuento -->
                                         <div class="col-md-2">
                                             <div
-                                                v-if="item.descuento_porcentaje > 0"
+                                                v-if="
+                                                    item.descuento_porcentaje >
+                                                    0
+                                                "
                                             >
-                                                <p class="text-sm text-decoration-line-through text-gray-500">
-                                                    ${{ Number(item.precio_unitario).toFixed(2) }}
+                                                <p
+                                                    class="text-sm text-decoration-line-through text-gray-500"
+                                                >
+                                                    ${{
+                                                        Number(
+                                                            item.precio_unitario
+                                                        ).toFixed(2)
+                                                    }}
                                                 </p>
-                                                <p class="font-semibold text-success">
-                                                    ${{ Number(item.precio_con_descuento).toFixed(2) }}
+                                                <p
+                                                    class="font-semibold text-success"
+                                                >
+                                                    ${{
+                                                        Number(
+                                                            item.precio_con_descuento
+                                                        ).toFixed(2)
+                                                    }}
                                                 </p>
                                                 <span class="badge bg-danger">
-                                                    -{{ item.descuento_porcentaje }}%
+                                                    -{{
+                                                        item.descuento_porcentaje
+                                                    }}%
                                                 </span>
                                             </div>
                                             <div v-else>
                                                 <p class="font-semibold">
-                                                    ${{ Number(item.precio_unitario).toFixed(2) }}
+                                                    ${{
+                                                        Number(
+                                                            item.precio_unitario
+                                                        ).toFixed(2)
+                                                    }}
                                                 </p>
                                             </div>
                                         </div>
@@ -173,7 +199,10 @@
                                                         )
                                                     "
                                                     min="1"
-                                                    :max="item.producto.stock_actual"
+                                                    :max="
+                                                        item.producto
+                                                            .stock_actual
+                                                    "
                                                 />
                                                 <button
                                                     class="btn btn-outline-secondary btn-sm"
@@ -196,8 +225,14 @@
 
                                         <!-- Subtotal y Eliminar -->
                                         <div class="col-md-2 text-end">
-                                            <p class="font-semibold text-lg mb-2">
-                                                ${{ Number(item.subtotal).toFixed(2) }}
+                                            <p
+                                                class="font-semibold text-lg mb-2"
+                                            >
+                                                ${{
+                                                    Number(
+                                                        item.subtotal
+                                                    ).toFixed(2)
+                                                }}
                                             </p>
                                             <button
                                                 class="btn btn-danger btn-sm"
@@ -246,7 +281,11 @@
                                     >
                                         <span>Subtotal:</span>
                                         <span>
-                                            ${{ Number(calcularSubtotal()).toFixed(2) }}
+                                            ${{
+                                                Number(
+                                                    calcularSubtotal()
+                                                ).toFixed(2)
+                                            }}
                                         </span>
                                     </div>
                                     <div
@@ -255,7 +294,11 @@
                                     >
                                         <span>Descuentos:</span>
                                         <span>
-                                            -${{ Number(calcularDescuentoTotal()).toFixed(2) }}
+                                            -${{
+                                                Number(
+                                                    calcularDescuentoTotal()
+                                                ).toFixed(2)
+                                            }}
                                         </span>
                                     </div>
                                 </div>
@@ -297,11 +340,11 @@
         </div>
 
         <!-- Modal para Dirección de Entrega -->
-        <div 
-            v-if="showDireccionModal" 
-            class="modal fade show d-block" 
-            tabindex="-1" 
-            style="background-color: rgba(0,0,0,0.5);"
+        <div
+            v-if="showDireccionModal"
+            class="modal fade show d-block"
+            tabindex="-1"
+            style="background-color: rgba(0, 0, 0, 0.5)"
         >
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -310,9 +353,9 @@
                             <i class="bi bi-geo-alt me-2"></i>
                             Dirección de Entrega
                         </h5>
-                        <button 
-                            type="button" 
-                            class="btn-close" 
+                        <button
+                            type="button"
+                            class="btn-close"
                             @click="showDireccionModal = false"
                         ></button>
                     </div>
@@ -321,14 +364,16 @@
                             <div class="alert alert-info">
                                 <i class="bi bi-info-circle me-2"></i>
                                 <small>
-                                    Ingresa la dirección donde deseas recibir tu pedido. 
-                                    El pago se realizará mediante código QR.
+                                    Ingresa la dirección donde deseas recibir tu
+                                    pedido. El pago se realizará mediante código
+                                    QR.
                                 </small>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="direccion" class="form-label">
-                                    Dirección Completa <span class="text-danger">*</span>
+                                    Dirección Completa
+                                    <span class="text-danger">*</span>
                                 </label>
                                 <textarea
                                     id="direccion"
@@ -341,9 +386,15 @@
                                     maxlength="500"
                                 ></textarea>
                                 <small class="text-muted">
-                                    Mínimo 10 caracteres. Incluye referencias para facilitar la entrega.
+                                    Mínimo 10 caracteres. Incluye referencias
+                                    para facilitar la entrega.
                                 </small>
-                                <div v-if="formDireccion.errors.direccion_entrega" class="text-danger small mt-1">
+                                <div
+                                    v-if="
+                                        formDireccion.errors.direccion_entrega
+                                    "
+                                    class="text-danger small mt-1"
+                                >
                                     {{ formDireccion.errors.direccion_entrega }}
                                 </div>
                             </div>
@@ -351,26 +402,34 @@
                             <div class="alert alert-warning">
                                 <h6 class="mb-2">
                                     <i class="bi bi-cash-coin me-2"></i>
-                                    Total a Pagar: <strong>Bs. {{ Number(total).toFixed(2) }}</strong>
+                                    Total a Pagar:
+                                    <strong
+                                        >Bs.
+                                        {{ Number(total).toFixed(2) }}</strong
+                                    >
                                 </h6>
                                 <small>
-                                    Se generará un código QR para realizar el pago.
+                                    Se generará un código QR para realizar el
+                                    pago.
                                 </small>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button 
-                                type="button" 
-                                class="btn btn-secondary" 
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
                                 @click="showDireccionModal = false"
                                 :disabled="formDireccion.processing"
                             >
                                 Cancelar
                             </button>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 class="btn btn-primary"
-                                :disabled="formDireccion.processing || !formDireccion.direccion_entrega"
+                                :disabled="
+                                    formDireccion.processing ||
+                                    !formDireccion.direccion_entrega
+                                "
                             >
                                 <span v-if="formDireccion.processing">
                                     <i class="bi bi-hourglass-split me-2"></i>
@@ -403,7 +462,7 @@ const props = defineProps({
 // Modal para dirección de entrega
 const showDireccionModal = ref(false);
 const formDireccion = useForm({
-    direccion_entrega: ''
+    direccion_entrega: "",
 });
 
 // Calcular subtotal sin descuentos
@@ -463,12 +522,12 @@ const abrirModalDireccion = () => {
 };
 
 const realizarPedido = () => {
-    formDireccion.post(route('carrito.realizar-pedido'), {
+    formDireccion.post(route("carrito.realizar-pedido"), {
         preserveScroll: false,
         onSuccess: () => {
             showDireccionModal.value = false;
             formDireccion.reset();
-        }
+        },
     });
 };
 </script>

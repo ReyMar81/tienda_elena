@@ -31,4 +31,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'pagofacil' => [
+        'base_url' => env('PAGOFACIL_BASE_URL', 'https://masterqr.pagofacil.com.bo'),
+        'api_url' => env('PAGOFACIL_API_URL', 'https://masterqr.pagofacil.com.bo/api/services/v2'),
+        'tc_token_service' => env('PAGOFACIL_TC_TOKEN_SERVICE'),
+        'tc_token_secret' => env('PAGOFACIL_TC_TOKEN_SECRET'),
+    'override_amount' => env('PAGOFACIL_QR_OVERRIDE_AMOUNT'),
+    'callback_url' => env('PAGOFACIL_CALLBACK_URL'),
+    'response_language' => env('PAGOFACIL_RESPONSE_LANGUAGE', 'es'),
+    ],
+
 ];

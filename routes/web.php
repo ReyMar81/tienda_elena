@@ -186,6 +186,7 @@ Route::middleware([
         Route::put('/pedidos/{id}', [\App\Http\Controllers\GestionPedidosController::class, 'update'])->name('pedidos.update');
         Route::patch('/pedidos/{id}/accion', [\App\Http\Controllers\GestionPedidosController::class, 'accion'])->name('pedidos.accion');
         Route::patch('/pedidos/{id}/marcar-enviado', [PedidoOnlineController::class, 'marcarComoEnviado'])->name('pedidos.marcar-enviado');
+        Route::post('/pedidos/{id}/verificar-pago', [\App\Http\Controllers\GestionPedidosController::class, 'verificarPago'])->name('pedidos.verificar-pago');
     });
 
     // Mis Créditos y Pagos - Solo Cliente
@@ -219,6 +220,7 @@ Route::middleware([
 // ============================================
 Route::post('/webhook/pagofacil-simulado/venta', [PedidoOnlineController::class, 'webhookVentaSimulado'])->name('webhook.pagofacil.venta');
 Route::post('/webhook/pagofacil-simulado/cuota', [PagoCuotaController::class, 'webhookCuotaSimulado'])->name('webhook.pagofacil.cuota');
+Route::post('/pagofacil/callback', [PedidoOnlineController::class, 'pagofacilCallback'])->name('pagofacil.callback');
 
 // ============================================
 // ENDPOINTS DE PRUEBA (SOLO DESARROLLO)

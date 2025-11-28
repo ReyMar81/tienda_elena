@@ -9,6 +9,7 @@ use App\Models\Cuota;
 use App\Models\User;
 use App\Models\Producto;
 use App\Models\MetodoPago;
+use App\Models\KardexInventario;
 use App\Services\PromocionService;
 use App\Services\PagoFacilService;
 use App\Http\Requests\StorePedidoRequest;
@@ -17,6 +18,7 @@ use App\Http\Requests\AccionPedidoRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GestionPedidosController extends Controller
 {
@@ -202,6 +204,7 @@ class GestionPedidosController extends Controller
                             'interes_mora_cobrado' => 0,
                             'fecha' => now(),
                             'pago_facil_transaction_id' => $qrData['transaction_id'],
+                            'pago_facil_payment_number' => $qrData['payment_number'] ?? null,
                             'pago_facil_qr_image' => $qrData['qr_image'],
                             'pago_facil_status' => 'pending',
                         ]);
@@ -219,6 +222,7 @@ class GestionPedidosController extends Controller
                     );
                     $pedido->update([
                         'pago_facil_transaction_id' => $qrData['transaction_id'],
+                        'pago_facil_payment_number' => $qrData['payment_number'] ?? null,
                         'pago_facil_qr_image' => $qrData['qr_image'],
                         'pago_facil_status' => 'pending'
                     ]);
@@ -284,6 +288,101 @@ class GestionPedidosController extends Controller
             'pedido' => $pedido,
             'qrCuota' => $qrCuota,
         ]);
+    }
+
+    /**
+     * Verifica contra PagoFácil el estado del pago QR y actualiza la venta.
+     */
+    public function verificarPago($id)
+    {
+        $pedido = Venta::with(['detalles.producto'])->findOrFail($id);
+
+        if (!$pedido->pago_facil_transaction_id && !$pedido->pago_facil_payment_number) {
+            return back()->with('error', 'Este pedido no tiene una transacción QR asociada.');
+        }
+
+        try {
+            $resultado = $this->pagoFacilService->verificarEstadoPago(
+                $pedido->pago_facil_transaction_id ?? $pedido->pago_facil_payment_number,
+                $pedido->pago_facil_payment_number ?? $pedido->pago_facil_transaction_id
+            );
+
+            // Loguear el resultado completo para facilitar diagnóstico (se guarda en logs)
+            Log::info('🔎 Resultado verificación PagoFácil', [
+                'venta_id' => $pedido->id,
+                'transaction_id' => $pedido->pago_facil_transaction_id,
+                'payment_number' => $pedido->pago_facil_payment_number,
+                'resultado' => $resultado,
+            ]);
+
+            if (!($resultado['success'] ?? false)) {
+                $mensaje = $resultado['mensaje'] ?? 'No se pudo verificar el pago con PagoFácil.';
+                return back()->with('error', $mensaje);
+            }
+
+            $status = $resultado['status'] ?? 'pending';
+
+            if ($status === 'completed') {
+                if ($pedido->estado !== 'pagado') {
+                    DB::transaction(function () use ($pedido, $resultado) {
+                        $pedido->update([
+                            'estado' => 'pagado',
+                            'pago_facil_status' => 'completed',
+                            'pago_facil_raw_response' => json_encode($resultado['raw'] ?? $resultado),
+                        ]);
+
+                        foreach ($pedido->detalles as $detalle) {
+                            $producto = $detalle->producto;
+                            if (!$producto) {
+                                continue;
+                            }
+
+                            $producto->decrement('stock_actual', $detalle->cantidad);
+
+                            KardexInventario::create([
+                                'producto_id' => $producto->id,
+                                'tipo' => 'salida',
+                                'cantidad' => $detalle->cantidad,
+                                'referencia' => "Venta {$pedido->numero_venta}",
+                                'observaciones' => 'Pedido pagado vía QR',
+                            ]);
+                        }
+                    });
+                } else {
+                    $pedido->update([
+                        'pago_facil_status' => 'completed',
+                        'pago_facil_raw_response' => json_encode($resultado['raw'] ?? $resultado),
+                    ]);
+                }
+
+                return redirect()->route('pedidos.show', $pedido->id)
+                    ->with('success', 'Pago confirmado exitosamente. El pedido fue marcado como pagado.');
+            }
+
+            $pedido->update([
+                'pago_facil_status' => $status,
+                'pago_facil_raw_response' => json_encode($resultado['raw'] ?? $resultado),
+            ]);
+
+            $mensaje = match ($status) {
+                'expired' => 'El código QR ha expirado. Genera uno nuevo para continuar.',
+                'cancelled' => 'El pago fue cancelado por el banco o el cliente.',
+                default => 'El pago aún está pendiente. Vuelve a verificar en unos minutos.',
+            };
+
+            $alertKey = $status === 'pending' ? 'info' : 'warning';
+
+            return back()->with($alertKey, $mensaje);
+
+        } catch (\Exception $e) {
+            Log::error('Error al verificar pago con PagoFácil', [
+                'venta_id' => $pedido->id,
+                'transaction_id' => $pedido->pago_facil_transaction_id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', 'No se pudo verificar el pago: ' . $e->getMessage());
+        }
     }
     
     /**
@@ -424,6 +523,7 @@ class GestionPedidosController extends Controller
                 // Actualizar pedido con datos del QR
                 $pedido->update([
                     'pago_facil_transaction_id' => $qrData['transaction_id'],
+                    'pago_facil_payment_number' => $qrData['payment_number'] ?? null,
                     'pago_facil_qr_image' => $qrData['qr_image'],
                     'pago_facil_status' => 'pending'
                 ]);

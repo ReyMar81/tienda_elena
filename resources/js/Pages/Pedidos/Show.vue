@@ -1,7 +1,6 @@
 <template>
     <AppLayout title="Detalle del Pedido">
         <div class="container py-4">
-
             <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
@@ -34,23 +33,48 @@
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Fecha:</td>
-                                        <td>{{ formatearFecha(pedido.created_at) }}</td>
+                                        <td>
+                                            {{
+                                                formatearFecha(
+                                                    pedido.created_at
+                                                )
+                                            }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Estado:</td>
                                         <td>
-                                            <span 
+                                            <span
                                                 :class="
-                                                    pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                                    pedido.tipo_pago ===
+                                                        'credito' &&
+                                                    pedido.credito &&
+                                                    pedido.credito.estado ===
+                                                        'pendiente'
                                                         ? 'badge bg-warning text-dark'
-                                                        : getBadgeClass(pedido.estado)
-                                                " 
+                                                        : getBadgeClass(
+                                                              pedido.estado
+                                                          )
+                                                "
                                                 class="badge"
                                             >
-                                                {{ 
-                                                    pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
-                                                        ? `Crédito (${pedido.credito.cuotas.filter(c => c.estado === 'pagado').length}/${pedido.credito.cuotas.length})`
-                                                        : pedido.estado.toUpperCase() 
+                                                {{
+                                                    pedido.tipo_pago ===
+                                                        "credito" &&
+                                                    pedido.credito &&
+                                                    pedido.credito.estado ===
+                                                        "pendiente"
+                                                        ? `Crédito (${
+                                                              pedido.credito.cuotas.filter(
+                                                                  (c) =>
+                                                                      c.estado ===
+                                                                      "pagado"
+                                                              ).length
+                                                          }/${
+                                                              pedido.credito
+                                                                  .cuotas.length
+                                                          })`
+                                                        : pedido.estado.toUpperCase()
                                                 }}
                                             </span>
                                         </td>
@@ -59,11 +83,19 @@
                                         <td class="fw-bold">Tipo de Pago:</td>
                                         <td>
                                             <span
-                                                :class="pedido.tipo_pago === 'credito'
-                                                    ? 'badge bg-info'
-                                                    : 'badge bg-success'"
+                                                :class="
+                                                    pedido.tipo_pago ===
+                                                    'credito'
+                                                        ? 'badge bg-info'
+                                                        : 'badge bg-success'
+                                                "
                                             >
-                                                {{ pedido.tipo_pago === 'credito' ? 'A Crédito' : 'Al Contado' }}
+                                                {{
+                                                    pedido.tipo_pago ===
+                                                    "credito"
+                                                        ? "A Crédito"
+                                                        : "Al Contado"
+                                                }}
                                             </span>
                                         </td>
                                     </tr>
@@ -71,7 +103,12 @@
                                         <td class="fw-bold">Método de Pago:</td>
                                         <td>
                                             <span class="badge bg-primary">
-                                                {{ pedido.metodo_pago?.nombre || pedido.metodoPago?.nombre || 'N/A' }}
+                                                {{
+                                                    pedido.metodo_pago
+                                                        ?.nombre ||
+                                                    pedido.metodoPago?.nombre ||
+                                                    "N/A"
+                                                }}
                                             </span>
                                         </td>
                                     </tr>
@@ -89,30 +126,45 @@
                                 <tbody>
                                     <tr>
                                         <td class="fw-bold">Cliente:</td>
-                                        <td>{{ pedido.user?.nombre || 'N/A' }}</td>
+                                        <td>
+                                            {{ pedido.user?.nombre || "N/A" }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Email:</td>
-                                        <td>{{ pedido.user?.email || 'N/A' }}</td>
+                                        <td>
+                                            {{ pedido.user?.email || "N/A" }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Teléfono:</td>
-                                        <td>{{ pedido.user?.telefono || 'N/A' }}</td>
+                                        <td>
+                                            {{ pedido.user?.telefono || "N/A" }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Dirección:</td>
-                                        <td>{{ pedido.user?.direccion || 'N/A' }}</td>
+                                        <td>
+                                            {{
+                                                pedido.user?.direccion || "N/A"
+                                            }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>
 
             <!-- Código QR para Pago (al contado: QR del pedido, a crédito: QR de la primera cuota) -->
-            <div v-if="pedido.estado === 'pendiente' && (qrCuota || pedido.pago_facil_qr_image)" class="card shadow-sm border-0 mb-4">
+            <div
+                v-if="
+                    pedido.estado === 'pendiente' &&
+                    (qrCuota || pedido.pago_facil_qr_image)
+                "
+                class="card shadow-sm border-0 mb-4"
+            >
                 <div class="card-header bg-warning text-dark border-0">
                     <h5 class="fw-bold mb-0">
                         <i class="bi bi-qr-code me-2"></i>
@@ -133,7 +185,9 @@
                             <QRPayment
                                 v-else
                                 :qr-image="pedido.pago_facil_qr_image"
-                                :transaction-id="pedido.pago_facil_transaction_id"
+                                :transaction-id="
+                                    pedido.pago_facil_transaction_id
+                                "
                                 :monto="pedido.total"
                                 :descripcion="`Pedido #${pedido.numero_venta}`"
                                 :status="pedido.pago_facil_status || 'pending'"
@@ -142,9 +196,17 @@
                     </div>
                     <div class="alert alert-info mt-3">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Instrucciones:</strong> Escanea el código QR con tu app bancaria para completar el pago. 
-                        <span v-if="qrCuota">Este QR corresponde a la primera cuota. Una vez pagada, se registrará como cuota pagada en el crédito.</span>
-                        <span v-else>Una vez confirmado el pago, el pedido pasará automáticamente a estado "Pagado".</span>
+                        <strong>Instrucciones:</strong> Escanea el código QR con
+                        tu app bancaria para completar el pago.
+                        <span v-if="qrCuota"
+                            >Este QR corresponde a la primera cuota. Una vez
+                            pagada, se registrará como cuota pagada en el
+                            crédito.</span
+                        >
+                        <span v-else
+                            >Una vez confirmado el pago, el pedido pasará
+                            automáticamente a estado "Pagado".</span
+                        >
                     </div>
                 </div>
             </div>
@@ -178,23 +240,41 @@
                                 >
                                     <td>
                                         <div class="fw-bold">
-                                            {{ detalle.producto?.nombre || "Producto no disponible" }}
+                                            {{
+                                                detalle.producto?.nombre ||
+                                                "Producto no disponible"
+                                            }}
                                         </div>
                                         <small class="text-muted">
-                                            {{ detalle.producto?.descripcion || '' }}
+                                            {{
+                                                detalle.producto?.descripcion ||
+                                                ""
+                                            }}
                                         </small>
                                     </td>
                                     <td>
-                                        {{ detalle.producto?.categoria?.nombre || "N/A" }}
+                                        {{
+                                            detalle.producto?.categoria
+                                                ?.nombre || "N/A"
+                                        }}
                                     </td>
                                     <td class="text-end">
-                                        {{ formatearMoneda(detalle.precio_unitario) }}
+                                        {{
+                                            formatearMoneda(
+                                                detalle.precio_unitario
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-center">
                                         {{ detalle.cantidad }}
                                     </td>
                                     <td class="text-end">
-                                        {{ formatearMoneda(detalle.descuento * detalle.cantidad) }}
+                                        {{
+                                            formatearMoneda(
+                                                detalle.descuento *
+                                                    detalle.cantidad
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-end fw-bold">
                                         {{ formatearMoneda(detalle.subtotal) }}
@@ -203,7 +283,9 @@
                             </tbody>
                             <tfoot class="table-light">
                                 <tr>
-                                    <td colspan="5" class="text-end fw-bold">TOTAL:</td>
+                                    <td colspan="5" class="text-end fw-bold">
+                                        TOTAL:
+                                    </td>
                                     <td class="text-end fw-bold fs-5">
                                         {{ formatearMoneda(pedido.total) }}
                                     </td>
@@ -216,7 +298,10 @@
 
             <!-- Acciones -->
             <div
-                v-if="pedido.estado === 'pendiente' || (pedido.estado === 'pagado' && pedido.origen === 'online')"
+                v-if="
+                    pedido.estado === 'pendiente' ||
+                    (pedido.estado === 'pagado' && pedido.origen === 'online')
+                "
                 class="card shadow-sm border-0 mb-4"
             >
                 <div class="card-header bg-white border-0">
@@ -228,18 +313,32 @@
 
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-3">
-
-                        <button v-if="pedido.estado === 'pendiente'" @click="confirmarPedido" class="btn btn-success">
+                        <button
+                            v-if="pedido.estado === 'pendiente'"
+                            @click="confirmarPedido"
+                            class="btn btn-success"
+                        >
                             <i class="bi bi-check-circle me-1"></i>
                             Confirmar Pedido
                         </button>
 
-                        <button v-if="pedido.estado === 'pagado' && pedido.origen === 'online'" @click="marcarEnviado" class="btn btn-primary">
+                        <button
+                            v-if="
+                                pedido.estado === 'pagado' &&
+                                pedido.origen === 'online'
+                            "
+                            @click="marcarEnviado"
+                            class="btn btn-primary"
+                        >
                             <i class="bi bi-truck me-1"></i>
                             Marcar como Enviado
                         </button>
 
-                        <button v-if="pedido.estado === 'pendiente'" @click="cancelarPedido" class="btn btn-danger">
+                        <button
+                            v-if="pedido.estado === 'pendiente'"
+                            @click="cancelarPedido"
+                            class="btn btn-danger"
+                        >
                             <i class="bi bi-x-circle me-1"></i>
                             Cancelar Pedido
                         </button>
@@ -260,6 +359,34 @@
                             <i class="bi bi-arrow-left me-1"></i>
                             Volver a Pedidos
                         </Link>
+
+                        <button
+                            v-if="
+                                pedido.estado === 'pendiente' &&
+                                (
+                                    pedido.metodo_pago?.nombre ||
+                                    pedido.metodoPago?.nombre ||
+                                    ''
+                                )
+                                    .toUpperCase()
+                                    .includes('QR') &&
+                                pedido.pago_facil_transaction_id
+                            "
+                            class="btn btn-outline-primary"
+                            :disabled="verificandoPago"
+                            @click="verificarPagoQr"
+                        >
+                            <span v-if="verificandoPago">
+                                <span
+                                    class="spinner-border spinner-border-sm me-2"
+                                ></span>
+                                Verificando...
+                            </span>
+                            <span v-else>
+                                <i class="bi bi-arrow-repeat me-1"></i>
+                                Verificar pago QR
+                            </span>
+                        </button>
                     </div>
 
                     <div
@@ -267,50 +394,73 @@
                         class="alert alert-info mt-4"
                     >
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>Nota:</strong> Al confirmar este pedido se generará automáticamente un crédito.
+                        <strong>Nota:</strong> Al confirmar este pedido se
+                        generará automáticamente un crédito.
                     </div>
                 </div>
             </div>
-
 
             <!-- Ya procesado -->
             <div v-else class="card shadow-sm border-0">
                 <div class="card-body">
                     <div
                         :class="
-                            pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                            pedido.tipo_pago === 'credito' &&
+                            pedido.credito &&
+                            pedido.credito.estado === 'pendiente'
                                 ? 'alert alert-info'
-                                : (pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
-                                    ? 'alert alert-success'
-                                    : 'alert alert-warning')
+                                : pedido.estado === 'pagado' ||
+                                  pedido.estado === 'enviado' ||
+                                  pedido.estado === 'completada'
+                                ? 'alert alert-success'
+                                : 'alert alert-warning'
                         "
                     >
                         <i
                             :class="
-                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
+                                pedido.tipo_pago === 'credito' &&
+                                pedido.credito &&
+                                pedido.credito.estado === 'pendiente'
                                     ? 'bi bi-clock-history'
-                                    : (pedido.estado === 'pagado' || pedido.estado === 'enviado' || pedido.estado === 'completada'
-                                        ? 'bi bi-check-circle'
-                                        : 'bi bi-exclamation-triangle')
+                                    : pedido.estado === 'pagado' ||
+                                      pedido.estado === 'enviado' ||
+                                      pedido.estado === 'completada'
+                                    ? 'bi bi-check-circle'
+                                    : 'bi bi-exclamation-triangle'
                             "
                             class="me-2"
                         ></i>
 
                         <strong>
                             {{
-                                pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
-                                    ? `Crédito en Curso (${pedido.credito.cuotas.filter(c => c.estado === 'pagado').length}/${pedido.credito.cuotas.length} cuotas pagadas)`
-                                    : (pedido.estado === 'pagado' ? 'Pedido Pagado'
-                                    : pedido.estado === 'enviado' ? 'Pedido Enviado'
-                                    : pedido.estado === 'completada' ? 'Pedido Confirmado'
-                                    : pedido.estado === 'anulado' ? 'Pedido Cancelado'
-                                    : 'Pedido Procesado')
+                                pedido.tipo_pago === "credito" &&
+                                pedido.credito &&
+                                pedido.credito.estado === "pendiente"
+                                    ? `Crédito en Curso (${
+                                          pedido.credito.cuotas.filter(
+                                              (c) => c.estado === "pagado"
+                                          ).length
+                                      }/${
+                                          pedido.credito.cuotas.length
+                                      } cuotas pagadas)`
+                                    : pedido.estado === "pagado"
+                                    ? "Pedido Pagado"
+                                    : pedido.estado === "enviado"
+                                    ? "Pedido Enviado"
+                                    : pedido.estado === "completada"
+                                    ? "Pedido Confirmado"
+                                    : pedido.estado === "anulado"
+                                    ? "Pedido Cancelado"
+                                    : "Pedido Procesado"
                             }}
                         </strong>
-                        - {{ 
-                            pedido.tipo_pago === 'credito' && pedido.credito && pedido.credito.estado === 'pendiente'
-                                ? 'El pedido fue entregado pero el crédito sigue pendiente de pago.'
-                                : 'Este pedido ya fue procesado y no se puede modificar.'
+                        -
+                        {{
+                            pedido.tipo_pago === "credito" &&
+                            pedido.credito &&
+                            pedido.credito.estado === "pendiente"
+                                ? "El pedido fue entregado pero el crédito sigue pendiente de pago."
+                                : "Este pedido ya fue procesado y no se puede modificar."
                         }}
                     </div>
 
@@ -324,7 +474,9 @@
                         </Link>
 
                         <Link
-                            v-if="pedido.tipo_pago === 'credito' && pedido.credito"
+                            v-if="
+                                pedido.tipo_pago === 'credito' && pedido.credito
+                            "
                             :href="route('creditos.show', pedido.credito.id)"
                             class="btn btn-info text-white"
                         >
@@ -334,7 +486,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Modal -->
@@ -368,6 +519,7 @@ const props = defineProps({
 });
 
 const mostrarModalCredito = ref(false);
+const verificandoPago = ref(false);
 
 const formatearFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString("es-ES", {
@@ -448,6 +600,21 @@ const marcarEnviado = () => {
         {
             onError: (errors) => alert(Object.values(errors).join(", ")),
             onSuccess: () => alert("Pedido marcado como enviado exitosamente"),
+        }
+    );
+};
+
+const verificarPagoQr = () => {
+    verificandoPago.value = true;
+
+    router.post(
+        route("pedidos.verificar-pago", props.pedido.id),
+        {},
+        {
+            preserveScroll: true,
+            onFinish: () => {
+                verificandoPago.value = false;
+            },
         }
     );
 };

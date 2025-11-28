@@ -23,8 +23,10 @@ class Venta extends Model
         'origen',
         'direccion_entrega',
         'pago_facil_transaction_id',
+        'pago_facil_payment_number',
         'pago_facil_qr_image',
-        'pago_facil_status'
+        'pago_facil_status',
+        'pago_facil_raw_response',
     ];
 
     protected $casts = [
