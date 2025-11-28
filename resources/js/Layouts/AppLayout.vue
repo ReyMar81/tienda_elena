@@ -42,7 +42,7 @@ const {
 
 const switchToTeam = (team) => {
     router.put(
-        router("current-team.update"),
+        route("current-team.update"),
         {
             team_id: team.id,
         },
@@ -53,7 +53,7 @@ const switchToTeam = (team) => {
 };
 
 const logout = () => {
-    router.post(router("logout"));
+    router.post(route("logout"));
 };
 </script>
 
