@@ -184,7 +184,9 @@ class GestionPedidosController extends Controller
                 if ($esMetodoQR && $request->tipo_pago === 'credito') {
                     // 1. Generar crédito y cuotas
                     $numeroCuotas = $request->numero_cuotas ?? 3;
-                    $credito = $this->crearCredito($pedido, $numeroCuotas);
+                    $tasaInteres = $request->tasa_interes ?? 0;
+                    $descuentoPercent = $request->descuento_percent ?? 0;
+                    $credito = $this->crearCredito($pedido, $numeroCuotas, $tasaInteres, $descuentoPercent);
                     // 2. Buscar la primera cuota pendiente
                     $primeraCuota = $credito->cuotas()->orderBy('numero_cuota')->first();
                     if ($primeraCuota) {
@@ -236,7 +238,9 @@ class GestionPedidosController extends Controller
                 $pedido->save();
                 if ($request->tipo_pago === 'credito') {
                     $numeroCuotas = $request->numero_cuotas ?? 3;
-                    $this->crearCredito($pedido, $numeroCuotas);
+                    $tasaInteres = $request->tasa_interes ?? 0;
+                    $descuentoPercent = $request->descuento_percent ?? 0;
+                    $this->crearCredito($pedido, $numeroCuotas, $tasaInteres, $descuentoPercent);
                 }
                 DB::commit();
                 return redirect()->route('ventas.index')
@@ -541,7 +545,9 @@ class GestionPedidosController extends Controller
             // Si es crédito, crear crédito con las cuotas del request
             if ($pedido->tipo_pago === 'credito') {
                 $numeroCuotas = $request->numero_cuotas;
-                $this->crearCredito($pedido, $numeroCuotas);
+                $tasaInteres = $request->tasa_interes ?? 0;
+                $descuentoPercent = $request->descuento_percent ?? 0;
+                $this->crearCredito($pedido, $numeroCuotas, $tasaInteres, $descuentoPercent);
             }
             
             return redirect()->route('pedidos.index')
@@ -564,46 +570,57 @@ class GestionPedidosController extends Controller
     /**
      * Crea el crédito y las cuotas para una venta a crédito
      */
-    private function crearCredito(Venta $venta, int $numeroCuotas = 3)
+    private function crearCredito(Venta $venta, int $numeroCuotas = 3, float $tasaInteres = 0, float $descuentoPercent = 0)
     {
-        $interes = 0; // Sin interés por ahora
-        $montoCuota = $venta->total / $numeroCuotas;
-        
+        // Aplicar descuento porcentual al total si existe
+        $montoBase = $venta->total;
+        if ($descuentoPercent > 0) {
+            $montoBase = round($montoBase - ($montoBase * $descuentoPercent / 100), 2);
+        }
+
+        // Calcular interés sobre el monto base
+        $interes = round($montoBase * ($tasaInteres / 100), 2);
+        $montoTotalConInteres = round($montoBase + $interes, 2);
+        $montoCuota = round($montoTotalConInteres / $numeroCuotas, 2);
+
         // Fechas
         $fechaOtorgamiento = now();
         $fechaVencimientoFinal = now()->addMonths($numeroCuotas);
-        
+
         // Crear el crédito
         $credito = Credito::create([
             'venta_id' => $venta->id,
-            'monto_credito' => $venta->total,
+            'monto_credito' => $montoBase,
             'interes' => $interes,
             'cuotas_total' => $numeroCuotas,
             'dias_mora' => 0,
             'monto_pagado' => 0,
-            'monto_pendiente' => $venta->total,
+            'monto_pendiente' => $montoTotalConInteres,
             'fecha_otorgamiento' => $fechaOtorgamiento,
             'fecha_vencimiento' => $fechaVencimientoFinal,
             'estado' => 'pendiente',
         ]);
-        
+
         // Crear las cuotas
+        $fechaVencimiento = now()->addMonth();
+        $interesPorCuota = $interes / $numeroCuotas;
+
         for ($i = 1; $i <= $numeroCuotas; $i++) {
-            $fechaVencimiento = now()->addMonths($i);
-            
             Cuota::create([
                 'credito_id' => $credito->id,
                 'numero_cuota' => $i,
                 'monto' => $montoCuota,
-                'interes_cuota' => 0,
+                'interes_cuota' => round($interesPorCuota, 2),
                 'dias_mora' => 0,
                 'monto_pagado' => 0,
                 'monto_pendiente' => $montoCuota,
-                'fecha_vencimiento' => $fechaVencimiento,
+                'fecha_vencimiento' => $fechaVencimiento->copy(),
                 'estado' => 'pendiente',
             ]);
+
+            $fechaVencimiento->addMonth();
         }
-        
+
         return $credito;
     }
 }

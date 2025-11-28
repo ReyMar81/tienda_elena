@@ -4,7 +4,8 @@
             <div class="row mb-4">
                 <div class="col-lg-8">
                     <h2 class="mb-0">
-                        <i class="bi bi-credit-card me-2"></i>Gestión de Créditos
+                        <i class="bi bi-credit-card me-2"></i>Gestión de
+                        Créditos
                     </h2>
                     <p class="text-muted">
                         Administra y visualiza los créditos otorgados a clientes
@@ -15,15 +16,31 @@
                 </div>
             </div>
             <!-- Mensajes de éxito/error -->
-            <div v-if="$page.props.flash?.success" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <div
+                v-if="$page.props.flash?.success"
+                class="alert alert-success alert-dismissible fade show mb-4"
+                role="alert"
+            >
                 <i class="bi bi-check-circle me-2"></i>
                 {{ $page.props.flash.success }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                ></button>
             </div>
-            <div v-if="$page.props.errors?.error" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <div
+                v-if="$page.props.errors?.error"
+                class="alert alert-danger alert-dismissible fade show mb-4"
+                role="alert"
+            >
                 <i class="bi bi-exclamation-triangle me-2"></i>
                 {{ $page.props.errors.error }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                ></button>
             </div>
 
             <!-- Indicadores -->
@@ -33,13 +50,22 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-white bg-opacity-10 rounded p-3">
-                                        <i class="bi bi-collection text-white" style="font-size: 1.5rem"></i>
+                                    <div
+                                        class="bg-white bg-opacity-10 rounded p-3"
+                                    >
+                                        <i
+                                            class="bi bi-collection text-white"
+                                            style="font-size: 1.5rem"
+                                        ></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <div class="text-white small">Total Créditos</div>
-                                    <h3 class="mb-0">{{ indicadores.total_creditos }}</h3>
+                                    <div class="text-white small">
+                                        Total Créditos
+                                    </div>
+                                    <h3 class="mb-0">
+                                        {{ indicadores.total_creditos }}
+                                    </h3>
                                 </div>
                             </div>
                         </div>
@@ -50,13 +76,26 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-white bg-opacity-10 rounded p-3">
-                                        <i class="bi bi-cash-coin text-warning" style="font-size: 1.5rem"></i>
+                                    <div
+                                        class="bg-white bg-opacity-10 rounded p-3"
+                                    >
+                                        <i
+                                            class="bi bi-cash-coin text-warning"
+                                            style="font-size: 1.5rem"
+                                        ></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <div class="text-dark small">Total Pendiente</div>
-                                    <h3 class="mb-0">{{ formatearMoneda(indicadores.total_pendiente) }}</h3>
+                                    <div class="text-dark small">
+                                        Total Pendiente
+                                    </div>
+                                    <h3 class="mb-0">
+                                        {{
+                                            formatearMoneda(
+                                                indicadores.total_pendiente
+                                            )
+                                        }}
+                                    </h3>
                                 </div>
                             </div>
                         </div>
@@ -67,13 +106,22 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-white bg-opacity-10 rounded p-3">
-                                        <i class="bi bi-exclamation-octagon text-danger" style="font-size: 1.5rem"></i>
+                                    <div
+                                        class="bg-white bg-opacity-10 rounded p-3"
+                                    >
+                                        <i
+                                            class="bi bi-exclamation-octagon text-danger"
+                                            style="font-size: 1.5rem"
+                                        ></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <div class="text-white small">Créditos en Mora</div>
-                                    <h3 class="mb-0">{{ indicadores.total_mora }}</h3>
+                                    <div class="text-white small">
+                                        Créditos en Mora
+                                    </div>
+                                    <h3 class="mb-0">
+                                        {{ indicadores.total_mora }}
+                                    </h3>
                                 </div>
                             </div>
                         </div>
@@ -84,13 +132,26 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="bg-white bg-opacity-10 rounded p-3">
-                                        <i class="bi bi-currency-exchange text-white" style="font-size: 1.5rem"></i>
+                                    <div
+                                        class="bg-white bg-opacity-10 rounded p-3"
+                                    >
+                                        <i
+                                            class="bi bi-currency-exchange text-white"
+                                            style="font-size: 1.5rem"
+                                        ></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <div class="text-white small">Monto en Mora</div>
-                                    <h3 class="mb-0">{{ formatearMoneda(indicadores.monto_mora) }}</h3>
+                                    <div class="text-white small">
+                                        Monto en Mora
+                                    </div>
+                                    <h3 class="mb-0">
+                                        {{
+                                            formatearMoneda(
+                                                indicadores.monto_mora
+                                            )
+                                        }}
+                                    </h3>
                                 </div>
                             </div>
                         </div>
@@ -113,10 +174,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Estado</label>
-                            <select
-                                v-model="form.estado"
-                                class="form-select"
-                            >
+                            <select v-model="form.estado" class="form-select">
                                 <option value="">Todos</option>
                                 <option value="pendiente">Pendiente</option>
                                 <option value="pagado">Pagado</option>
@@ -124,10 +182,7 @@
                             </select>
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
-                            <button
-                                type="submit"
-                                class="btn btn-primary me-2"
-                            >
+                            <button type="submit" class="btn btn-primary me-2">
                                 <i class="bi bi-search"></i> Buscar
                             </button>
                             <button
@@ -172,66 +227,112 @@
                             </thead>
                             <tbody>
                                 <tr v-if="creditos.data.length === 0">
-                                    <td colspan="10" class="text-center text-muted py-4">
-                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    <td
+                                        colspan="10"
+                                        class="text-center text-muted py-4"
+                                    >
+                                        <i
+                                            class="bi bi-inbox fs-1 d-block mb-2"
+                                        ></i>
                                         No se encontraron créditos
                                     </td>
                                 </tr>
-                                <tr v-for="credito in creditos.data" :key="credito.id">
+                                <tr
+                                    v-for="credito in creditos.data"
+                                    :key="credito.id"
+                                >
                                     <td>
                                         <strong>#{{ credito.id }}</strong>
                                     </td>
                                     <td>
                                         <div>
-                                            <strong>{{ credito.venta?.user?.nombre }}</strong>
+                                            <strong>{{
+                                                credito.venta?.user?.nombre
+                                            }}</strong>
                                             {{ credito.venta?.user?.apellidos }}
                                         </div>
-                                        <small class="text-muted">CI: {{ credito.venta?.user?.ci }}</small>
+                                        <small class="text-muted"
+                                            >CI:
+                                            {{ credito.venta?.user?.ci }}</small
+                                        >
                                     </td>
                                     <td>
                                         <Link
-                                            :href="route('ventas.show', credito.venta_id)"
+                                            :href="
+                                                route(
+                                                    'ventas.show',
+                                                    credito.venta_id
+                                                )
+                                            "
                                             class="text-primary"
                                         >
                                             {{ credito.venta?.numero_venta }}
                                         </Link>
                                     </td>
                                     <td class="text-end">
-                                        {{ formatearMoneda(credito.monto_credito) }}
+                                        {{
+                                            formatearMoneda(
+                                                credito.monto_credito
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-center">
                                         <span class="badge bg-info">
-                                            {{ cuotasPagadas(credito) }}/{{ credito.cuotas_total }}
+                                            {{ cuotasPagadas(credito) }}/{{
+                                                credito.cuotas_total
+                                            }}
                                         </span>
                                     </td>
                                     <td class="text-end text-success">
-                                        {{ formatearMoneda(credito.monto_pagado) }}
+                                        {{
+                                            formatearMoneda(
+                                                credito.monto_pagado
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-end text-danger">
-                                        {{ formatearMoneda(credito.monto_pendiente) }}
+                                        {{
+                                            formatearMoneda(
+                                                credito.monto_pendiente
+                                            )
+                                        }}
                                     </td>
                                     <td class="text-center">
-                                        <span v-if="credito.dias_mora > 0" class="badge bg-danger">
+                                        <span
+                                            v-if="credito.dias_mora > 0"
+                                            class="badge bg-danger"
+                                        >
                                             {{ credito.dias_mora }} días
                                         </span>
                                         <span v-else class="text-muted">-</span>
                                     </td>
                                     <td class="text-center">
-                                        <span :class="getEstadoBadge(credito.estado)">
+                                        <span
+                                            :class="
+                                                getEstadoBadge(credito.estado)
+                                            "
+                                        >
                                             {{ credito.estado.toUpperCase() }}
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
                                             <Link
-                                                :href="route('creditos.show', credito.id)"
+                                                :href="
+                                                    route(
+                                                        'creditos.show',
+                                                        credito.id
+                                                    )
+                                                "
                                                 class="btn btn-outline-info"
                                                 title="Ver detalles"
                                             >
                                                 <i class="bi bi-eye"></i>
                                             </Link>
                                             <button
-                                                v-if="credito.estado !== 'pagado'"
+                                                v-if="
+                                                    credito.estado !== 'pagado'
+                                                "
                                                 @click="abrirModalPago(credito)"
                                                 class="btn btn-outline-success"
                                                 title="Registrar pago"
@@ -250,7 +351,9 @@
                             <ul class="pagination justify-content-center">
                                 <li
                                     class="page-item"
-                                    :class="{ disabled: !creditos.prev_page_url }"
+                                    :class="{
+                                        disabled: !creditos.prev_page_url,
+                                    }"
                                 >
                                     <Link
                                         class="page-link"
@@ -264,7 +367,9 @@
                                     v-for="page in paginasVisibles"
                                     :key="page"
                                     class="page-item"
-                                    :class="{ active: page === creditos.current_page }"
+                                    :class="{
+                                        active: page === creditos.current_page,
+                                    }"
                                 >
                                     <Link
                                         v-if="page !== '...'"
@@ -278,7 +383,9 @@
                                 </li>
                                 <li
                                     class="page-item"
-                                    :class="{ disabled: !creditos.next_page_url }"
+                                    :class="{
+                                        disabled: !creditos.next_page_url,
+                                    }"
                                 >
                                     <Link
                                         class="page-link"
@@ -354,7 +461,7 @@ const getEstadoBadge = (estado) => {
 };
 
 const cuotasPagadas = (credito) => {
-    return credito.cuotas?.filter((c) => c.estado === "pagado").length || 0;
+    return credito.cuotas?.filter((c) => c.estado === "pagada").length || 0;
 };
 
 const filtrar = () => {

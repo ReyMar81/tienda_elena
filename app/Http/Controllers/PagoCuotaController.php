@@ -139,6 +139,7 @@ class PagoCuotaController extends Controller
                     'pago_facil_raw_response' => json_encode($request->all())
                 ]);
 
+<<<<<<< HEAD
                 // Actualizar cuota
                 $cuota = $pago->cuotaCredito;
                 $cuota->monto_pagado += $pago->monto;
@@ -147,6 +148,22 @@ class PagoCuotaController extends Controller
                 if ($cuota->monto_pagado >= $cuota->monto_cuota) {
                     $cuota->estado = 'pagado';
                     $cuota->fecha_pago = now();
+=======
+                // Actualizar cuota (actualizar columnas específicas para evitar escribir columnas inexistentes)
+                $cuota = $pago->cuota;
+                if ($cuota) {
+                    $nuevoMontoPagado = ($cuota->monto_pagado ?? 0) + $pago->monto;
+                    $nuevoEstado = $cuota->estado;
+                    if ($nuevoMontoPagado >= ($cuota->monto ?? 0)) {
+                        $nuevoEstado = 'pagada';
+                    }
+
+                    DB::table('cuotas')->where('id', $cuota->id)->update([
+                        'monto_pagado' => $nuevoMontoPagado,
+                        'estado' => $nuevoEstado,
+                        'updated_at' => now(),
+                    ]);
+>>>>>>> a71c191 (mora e interes en los creditos funcionando)
                 }
                 
                 $cuota->save();
